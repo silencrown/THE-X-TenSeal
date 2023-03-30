@@ -105,7 +105,7 @@ class ContextManager:
 
             @context_manager.depth_limiter(depth_increment=2)
             def my_function(x):
-                return x ** 2
+                return x ** 3
 
             result = my_function(2)
         """
