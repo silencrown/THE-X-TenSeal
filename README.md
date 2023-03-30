@@ -11,7 +11,6 @@ To use The-X NN, simply import the library and use it as you would any other PyT
 
 ## Example
 ```
-impoert tenseal as ts
 from the_x import xnn
 
 class Model(xnn.Module):
@@ -26,12 +25,42 @@ class Model(xnn.Module):
         return x
 
 model = Model()
-model.encrypt()
-x = xnn.randn(1, 10).encypt()
-y = model(x)
-y_decrypt = model.decrypt(y)
+model.encrypt() # change the model into FHE
+x = xnn.randn(1, 10).encypt() # change the data into FHE
+y = model(x) # inference on the encrypted data
+y_decrypt = model.decrypt(y) # get the plain result
 ```
 
+## Possible Implementation of xnn.Module
+
+```
+import torch
+import tenseal as ts
+
+
+class Module(torch.nn.Module):
+    """Wrapper class for torch.nn.Module to add FHE support."""
+
+    def __init__(self, encryption_context=None):
+        super(Module, self).__init__()
+        self.is_encrypted = False
+        self.encryption_context = encryption_context
+
+    def encrypt(self, encryption_context=None):
+        """Switches the module to FHE mode."""
+        self.is_encrypted = True
+        if not encryption_context:
+            self.encryption_context = ts.context(ts.SCHEME_TYPE.CKKS, poly_modulus_degree=4096, coeff_mod_bit_sizes=[40, 40, 40, 40])
+
+    def decrypt(self):
+        """Switches the module to plain mode."""
+        self.is_encrypted = False
+        self.encryption_context = None
+
+    def forward(self, *inputs):
+        """Abstract method that should be overridden by all subclasses."""
+        raise NotImplementedError
+```
 
 
 ## Workflow
