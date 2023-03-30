@@ -10,7 +10,7 @@ The-X NN is an extension to `torch.nn.Module` that adds several necessary FHE (f
 To use The-X NN, simply import the library and use it as you would any other PyTorch module. The added encrypt() and decrypt() methods can be used to switch between plain and encrypted data states, allowing for secure inference on encrypted data.
 
 ## Example
-```
+```python
 from the_x import xnn
 
 class Model(xnn.Module):
@@ -33,7 +33,7 @@ y_decrypt = model.decrypt(y) # get the plain result
 
 ## Possible Implementation of xnn.Module
 
-```
+```python
 import torch
 import tenseal as ts
 
