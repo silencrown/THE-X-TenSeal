@@ -8,9 +8,9 @@ class ContextManager:
     def __init__(self, poly_mod=32768, inner_primes=35, precision_integer=5):
         '''
         Args:
-            poly_mod (int, optional): The polynomial modulus. Defaults to 32768.
-            inner_primes (int, optional): The number of inner primes. Defaults to 35.
-            precision_integer (int, optional): The precision. Defaults to 5.
+        - poly_mod (int, optional): The polynomial modulus. Defaults to 32768.
+        - inner_primes (int, optional): The number of inner primes. Defaults to 35.
+        - precision_integer (int, optional): The precision. Defaults to 5.
 
         Notice (from SEAL):
             8192 under 128 security level -> 218
@@ -19,7 +19,6 @@ class ContextManager:
 
         Restriction: 
             sum(_coeff_mod_bit_sizes) < _table[_poly_mod]
-
         '''
         self._table = {
             1024: 27,
@@ -93,15 +92,21 @@ class ContextManager:
     
     def depth_limiter(self, depth_increment=1):
         """
-        Decorator to limit the depth of the function.
+        Creates a decorator that limits the depth of a function.
+
+        Args:
+        - depth_increment (int): The amount to increment the depth counter by when entering the decorated function.
+
+        Returns:
+        - A decorator function that can be used to decorate other functions.
 
         Example:
             context_manager = ContextManager()
 
-            @context_manager.my_method(depth_increment=2)
+            @context_manager.depth_limiter(depth_increment=2)
             def my_function(x):
                 return x ** 2
-            
+
             result = my_function(2)
         """
         def decorator(func):
