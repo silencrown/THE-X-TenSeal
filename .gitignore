@@ -129,9 +129,9 @@ dmypy.json
 .pyre/
 
 # Project datas
-.data/*
-.cache/*
+data/*
+cache/*
 */data/*
-.trash/
+trash/*
 */runs/*
 backup/*

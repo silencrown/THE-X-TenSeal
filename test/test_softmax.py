@@ -1,48 +1,40 @@
+import unittest
 import torch
-import torch.nn as nn
-import tenseal as ts
-import numpy as np
-import time
 
-def softmax(X):
-    X_exp = torch.exp(X)
-    partition = X_exp.sum(0, keepdim=True)
-    return X_exp / partition
+from src.utils import LoggingUtils
+import src.operators as op
 
-def softmax_appr(X, net):
-    pass
+log = LoggingUtils(logger_name='softmax_logger')
+log.add_console_handler()
 
-def softmax_enc(X, T):
-    pass
+class TestSoftmax(unittest.TestCase):
+    def test_appr_softmax():
+        """
+        test softmax approximation.
+        """
+        # forward test
+        x = torch.randn(10)
+        log.debug(f"x: {x}")
+        softmax_appr = op.SoftmaxApprox()
+        log.debug(f"softmax_appr: {softmax_appr(x)}")
 
-def load_array(data_arrays, batch_size, is_train=True):
-    dataset = data.TensorDataset(*data_arrays)
-    return data.DataLoader(dataset, batch_size, shuffle=is_train)
+        # train test
+        softmax_appr_trainer = op.SoftmaxApproxTrainer(softmax_appr, num_samples=1000000, input_size=128)
+        # log.debug(f"generate train data: {softmax_appr_trainer._generate_train_data()[0][0]}")
+        softmax_appr_trainer.train()
 
+    def test_softmax():
+        """
+        Test softmax function.
+        """
+        x_torch = torch.rand(10, 10)
+        x_np = x_torch.numpy()
 
-def init_weights(m):
-    if type(m) == nn.Linear:
-        nn.init.normal_(m.weight, std=0.01)
+        log.debug(f"torch: {x_torch[0][0]}")
+        log.debug(f"numpy: {x_np[0][0]}")
+    
+        log.debug(f"softmax: {op.softmax(x_np)}")
+        log.debug(f"softmax_torch: {op.softmax_torch(x_torch)}")
 
-def main():
-    # generate evaluate samples
-    hidden_size = 512
-    X = np.random.normal(size=(1000, 512))
-    X = np.clip(X, -3, 3)
-    # print(X)
-    Y = softmax(torch.tensor(X))
-    # print(Y)
-    batch_size = 10
-    data_iter = load_array((X, Y), batch_size)
-
-    # init net
-    net = nn.Sequential(nn.Linear(512, 1024), 
-                        nn.Linear(1024, 1024), 
-                        nn.Linear(1024, 512))
-    net.apply(init_weights)
-
-
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    unittest.main()
