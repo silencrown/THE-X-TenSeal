@@ -62,6 +62,30 @@ class Module(torch.nn.Module):
         raise NotImplementedError
 ```
 
+## Opeartors Waiting List
+
+1. `xnn.Linear`: This is a fully-connected layer operator, which is used for the linear transformation of input data.
+
+2. `xnn.MultiHeadAttention`: This operator computes self-attention for input data, which is an important part of the transformer model.
+
+3. `xnn.LayerNorm`: This operator implements layer normalization, which is used in various parts of the transformer model.
+
+4. `xnn.ReLU`: This is a rectified linear unit operator, which is used as the activation function in various parts of the model.
+
+5. `xnn.Dropout`: This operator is used for regularization by randomly dropping out some of the input during training.
+
+6. `xnn.TransformerEncoderLayer`: This operator defines a single layer of the transformer encoder, which can be used to build the full transformer encoder.
+
+7. `xnn.TransformerDecoderLayer`: This operator defines a single layer of the transformer decoder, which can be used to build the full transformer decoder.
+
+8. `xnn.Softmax`: This operator is used to compute the attention scores using the dot product of the queries and keys.
+
+9. `xnn.Transpose`: This operator is used to transpose the output of a previous operator to match the expected shape.
+
+10. `xnn.MaskedFill`: This operator is used to mask out the padded values in the input sequence.
+
+11. `xnn.MatMul`: This operator is used for matrix multiplication. It's used to compute the final output of the attention mechanism.
+
 
 ## Workflow
 1. pretrained model -> origin model
