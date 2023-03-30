@@ -1,0 +1,1 @@
+python /home/gaosq/THE-X-TenSEAL/test/bert/run.py -e 3
