@@ -55,7 +55,7 @@ class ContextManager:
             ValueError: If the parameters are not valid.
         Returns:
             Tuple[ts.Context, int]: The tenseal context and the precision.
-        """     
+        """
         # SEAL context
         ctx = ts.context(
             scheme=ts.SCHEME_TYPE.CKKS,
