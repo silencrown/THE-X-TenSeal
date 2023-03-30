@@ -1,0 +1,3 @@
+[submodule "external/TenSEAL"]
+	path = external/TenSEAL
+	url = https://github.com/OpenMined/TenSEAL.git
