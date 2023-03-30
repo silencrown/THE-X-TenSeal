@@ -134,3 +134,4 @@ dmypy.json
 */data/*
 .trash/
 */runs/*
+.backup/
