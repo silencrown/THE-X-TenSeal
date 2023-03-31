@@ -128,7 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Project datas
+# the-x datas
 data/*
 cache/*
 */data/*
