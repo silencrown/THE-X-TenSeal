@@ -134,4 +134,6 @@ cache/*
 */data/*
 trash/*
 */runs/*
+logs/*
+*/logs/*
 backup/*
