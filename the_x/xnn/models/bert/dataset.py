@@ -7,6 +7,9 @@ import tqdm
 from collections import Counter
 
 
+import argparse
+
+
 class TorchVocab(object):
     """Defines a vocabulary object that will be used to numericalize a field.
     Attributes:
@@ -169,7 +172,6 @@ class WordVocab(Vocab):
             return pickle.load(f)
 
 def build():
-    import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--corpus_path", required=True, type=str)
     parser.add_argument("-o", "--output_path", required=True, type=str)

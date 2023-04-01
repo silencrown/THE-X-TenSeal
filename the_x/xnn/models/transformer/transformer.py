@@ -4,8 +4,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math, copy, time
 from torch.autograd import Variable
-import matplotlib.pyplot as plt
 import seaborn
+
+
 seaborn.set_context(context="talk")
 
 class EncoderDecoder(nn.Module):
@@ -392,4 +393,3 @@ class LabelSmoothing(nn.Module):
 #     return crit(Variable(predict.log()),
 #                  Variable(torch.LongTensor([1]))).data[0]
 # plt.plot(np.arange(1, 100), [loss(x) for x in range(1, 100)])
-

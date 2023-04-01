@@ -4,10 +4,8 @@ import torch.nn.functional as F
 import numpy as np
 
 from torch.utils.tensorboard import SummaryWriter
-from src.utils import LoggingUtils
+from the_x._logger import logger
 
-log = LoggingUtils(logger_name='softmax_logger')
-log.add_console_handler()
 
 def softmax(x, axis=1):
     """Compute softmax values for each sets of scores in x."""
@@ -91,7 +89,7 @@ class SoftmaxApproxTrainer():
             l = loss(self.softmodel(x), y)
             l.sum().backward()
             optimizer.step()
-            log.info(f'epoch {epoch + 1}, loss {float(l.sum()):.6f}')
+            logger.info(f'epoch {epoch + 1}, loss {float(l.sum()):.6f}')
             writer.add_scalar('loss', float(l.sum()), epoch)
         writer.close()
 
@@ -100,5 +98,5 @@ class SoftmaxApproxTrainer():
         Save model.
         """
         torch.save(self.softmodel.state_dict(), file_path)
-        log.info(f"Model Saved on: {file_path}")
+        logger.info(f"Softmax Model Saved on: {file_path}")
         return file_path

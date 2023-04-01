@@ -1,5 +1,3 @@
-import numpy as np
-
 class EncTransformer():
     """
     A original Transformer class of architecture

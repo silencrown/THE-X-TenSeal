@@ -2,6 +2,7 @@ import sys
 from typing import Tuple
 import math
 import tenseal as ts
+from the_x._logger import logger
 
 
 class ContextManager:
@@ -20,6 +21,7 @@ class ContextManager:
         Restriction: 
             sum(_coeff_mod_bit_sizes) < _table[_poly_mod]
         '''
+
         self._table = {
             1024: 27,
             2048: 54,
@@ -37,7 +39,7 @@ class ContextManager:
         self.precision_fractional = self.inner_primes - self.precision_integer
         # depth
         self.max_depth = math.floor(
-            (self._table[self.poly_mod] - (self.precision_integer + self.size_inner_primes) * 2)
+            (self._table[self.poly_mod] - (self.precision_integer + self.inner_primes) * 2)
             / self.inner_primes
         )
         self.depth = 0
@@ -80,13 +82,13 @@ class ContextManager:
         """
         def decorator(func):
             def wrapper(*args, **kwargs):
-                if self.depth >= self.max_depth:
-                    raise ValueError("Max depth exceeded")
-                self.depth += depth_increment
+                if self.depth + depth_increment >= self.max_depth:
+                    raise ValueError("Max depth exceeded. max_depth: {self.max_depth}, depth: {self.depth}, depth increment: {depth_increment}")
                 try:
-                    return func(*args, **kwargs) * depth_increment
+                    return func(*args, **kwargs)
                 finally:
-                    self.depth -= depth_increment if not sys.exc_info()[0] else 0
+                    self.depth += depth_increment if not sys.exc_info()[0] else 0
+                    logger(f"depth: {self.depth}")
             return wrapper
         return decorator
     

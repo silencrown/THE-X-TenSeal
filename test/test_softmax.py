@@ -1,7 +1,7 @@
 import unittest
 import torch
 
-from src.utils import LoggingUtils
+from the_x._logger import LoggingUtils
 import src.operators as op
 
 log = LoggingUtils(logger_name='softmax_logger')

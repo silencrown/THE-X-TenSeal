@@ -1,4 +1,3 @@
-'''A wrapper class for optimizer '''
 import numpy as np
 import torch
 import torch.nn as nn
@@ -6,6 +5,9 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 import tqdm
 from model import BERTLM, BERT
+
+
+'''A wrapper class for optimizer '''
 
 class ScheduledOptim():
     '''A simple wrapper class for learning rate scheduling'''

@@ -1,6 +1,19 @@
 import torch
 import tenseal as ts
+from abc import ABC, abstractmethod
 
+
+class AbstractEncryptedLayer(ABC):
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def forward(self, x):
+        pass
+
+    @abstractmethod
+    def __call__(self, *args, **kwargs):
+        return self.forward(*args, **kwargs)
 
 class Module(torch.nn.Module):
     """Wrapper class for torch.nn.Module to add FHE support."""
