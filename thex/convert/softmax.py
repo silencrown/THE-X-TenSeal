@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import numpy as np
 
 from torch.utils.tensorboard import SummaryWriter
-from the_x._logger import logger
+from thex._logger import logger
 
 
 def softmax(x, axis=1):

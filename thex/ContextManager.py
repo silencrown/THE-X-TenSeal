@@ -2,7 +2,7 @@ import sys
 from typing import Tuple
 import math
 import tenseal as ts
-from the_x._logger import logger
+from thex._logger import logger
 
 
 class ContextManager:
@@ -50,6 +50,7 @@ class ContextManager:
             + [self.inner_primes for _ in range(self.depth)]
             + [self.precision_integer + self.inner_primes]
         )
+        self.context = self.get_context()[0]
 
     def get_context(self) -> Tuple[ts.Context, int]:
         """Get a tenseal context for the given parameters.
@@ -65,6 +66,7 @@ class ContextManager:
             coeff_mod_bit_sizes=self.coeff_mod_bit_sizes,
         )
         ctx.global_scale = self.scale
+        ctx.generate_galois_keys()
         return ctx, int(self.poly_mod / 4)
 
     def depth_check(self, depth_increment):
@@ -88,7 +90,7 @@ class ContextManager:
                     return func(*args, **kwargs)
                 finally:
                     self.depth += depth_increment if not sys.exc_info()[0] else 0
-                    logger(f"depth: {self.depth}")
+                    logger.debug(f"depth: {self.depth}")
             return wrapper
         return decorator
     
@@ -113,4 +115,27 @@ class ContextManager:
         """
         def decorator(func):
             return self.depth_check(depth_increment)(func)
+        return decorator
+
+    def depth_updater(self):
+        """
+        Creates a decorator that updates the depth of a function.
+
+        Returns:
+        - A decorator function that can be used to decorate other functions.
+
+        Example:
+            context_manager = ContextManager()
+
+            @context_manager.depth_updater()
+            def my_function(x):
+                return relu(x)
+
+            result = my_function(list_of_inputs)
+        """
+        def decorator(func):
+            def warpper(*args, **kwargs):
+                self.depth = 0
+                func(*args, **kwargs)
+            return warpper
         return decorator

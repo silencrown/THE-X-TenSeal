@@ -7,7 +7,8 @@ if the_x_parent_directory not in sys.path:
 
 import unittest
 import tenseal as ts
-from the_x.ContextManager import ContextManager
+
+from thex.ContextManager import ContextManager
 
 
 class TestContextManager(unittest.TestCase):
@@ -27,6 +28,12 @@ class TestContextManager(unittest.TestCase):
         # Test with depth within limit
         result = sqart(2)
         self.assertEqual(self.context_manager.depth, 1)
+    
+    def test_depth_updater(self):
+        @self.context_manager.depth_updater()
+        def update(x):
+            pass
+        self.assertEqual(self.context_manager.depth, 0)
 
 
 if __name__ == '__main__':
