@@ -1,10 +1,5 @@
-import sys
-import os
 
-the_x_parent_directory = os.path.abspath("/home/gaosq/the-X-TenSeal/")
-if the_x_parent_directory not in sys.path:
-    sys.path.insert(0, the_x_parent_directory)
-
+import test_helper
 from thex._logger import logger
 
 
