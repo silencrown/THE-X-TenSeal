@@ -8,12 +8,12 @@ from torchvision import datasets
 import torchvision.transforms as transforms
 import tenseal as ts
 
-from src.model.cnn.cnn import (
+from thex.models.cnn.cnn import (
     ConvNet, 
     train, 
     test
 )
-from src.model.cnn.enc_cnn import (
+from thex.models.cnn.enc_cnn import (
     EncConvNet, 
     enc_test, 
 )
