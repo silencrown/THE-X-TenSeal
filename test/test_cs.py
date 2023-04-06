@@ -11,6 +11,7 @@ class Client:
         self.pub_ctx = self._public_ctx()
 
     def _get_context(self) -> ts.Context:
+        # TODO: add ContextManager logic
         ...
 
     def _public_ctx(self) -> bytes:
