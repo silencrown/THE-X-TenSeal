@@ -1,5 +1,5 @@
 import tenseal as ts
-import src.operators as op
+import thex.xnn as xnn
 import unittest
 
 def _get_context():
@@ -14,6 +14,6 @@ class TestSqueeze(unittest.TestCase):
         scale = 2**40
         vector = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
         vector = ckks_encoder.encode(vector, scale)
-        vector = op.squeeze(context, vector, 2, 2)
+        vector = xnn.squeeze(context, vector, 2, 2)
         vector = ckks_encoder.decode(vector)
         self.assertEqual(vector, [3.0, 4.0, 5.0, 6.0])

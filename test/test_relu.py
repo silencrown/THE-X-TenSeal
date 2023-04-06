@@ -4,7 +4,7 @@ import tenseal as ts
 
 import test_helper
 from thex.ContextManager import ContextManager
-from thex.operators import ReLU
+from thex.xnn import ReLU
 
 class TestReLU(unittest.TestCase):
     def setUp(self):
