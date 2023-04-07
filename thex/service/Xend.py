@@ -7,15 +7,12 @@ class Protocol(enum.Enum):
 
 class Xend:
     """
-    This is an example of a function that does something.
-
     Parameters
-
-    ip: The IP address of the server.
-    port: The port on which the server is running.
-    protocol: The protocol to use. Either Protocol.GRPC or Protocol.HTTP.
-    cache_location: The location where cached data is stored on the local machine.
-    minio: A dictionary containing the endpoint, access key, secret key, and bucket name for the MinIO server.
+    - ip: The IP address of the server.
+    - port: The port on which the server is running.
+    - protocol: The protocol to use. Either Protocol.GRPC or Protocol.HTTP.
+    - cache_location: The location where cached data is stored on the local machine.
+    - minio: A dictionary containing the endpoint, access key, secret key, and bucket name for the MinIO server.
 
     Usage:
         xend = Xend(
@@ -31,6 +28,7 @@ class Xend:
             },
         )
     """
+
     def __init__(self, ip: str, port: int, protocol: Protocol, cache_location: str, minio: dict):
         self.ip = ip
         self.port = port
@@ -45,6 +43,7 @@ class Xend:
         return f"Xend instance with IP: {self.ip}, Port: {self.port}, Protocol: {self.protocol.value}, Cache Location: {self.cache_location}, MinIO Configuration: {self.minio}"
 
     def connect(self):
+        # TODO: Implement the Interface of Xu's Protocols
         # Implement the connection logic based on the selected protocol
         if self.protocol == Protocol.GRPC:
             # Connect using gRPC
