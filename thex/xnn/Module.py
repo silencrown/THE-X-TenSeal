@@ -3,15 +3,15 @@ import tenseal as ts
 from abc import ABC, abstractmethod
 
 
-class AbstractEncryptedLayer(ABC):
+class FHELayer(ABC):
+    @abstractmethod
     def __init__(self):
         pass
 
     @abstractmethod
-    def forward(self, x):
+    def forward(self, *args, **kwargs):
         pass
 
-    @abstractmethod
     def __call__(self, *args, **kwargs):
         return self.forward(*args, **kwargs)
 
