@@ -3,13 +3,12 @@ import numpy as np
 import tenseal as ts
 
 import test_helper
+from thex import logger
 from thex.ContextManager import ContextManager
-from thex.xnn import ReLU
 
 class TestReLU(unittest.TestCase):
     def setUp(self):
         self.context_manager = ContextManager()
-
 
     def test_ReLU(self):
         # create a random tensor

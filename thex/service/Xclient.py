@@ -1,9 +1,13 @@
 import numpy as np
 import tenseal as ts
 
+from thex import logger
+from thex.service.Xend import Xend
 
-class Client:
+
+class Client(Xend):
     def __init__(self, ctx) -> None:
+        super().__init__()
         self.ctx = ctx
         self.pub_ctx = self._public_ctx()
 
@@ -12,7 +16,8 @@ class Client:
         self.pub_ctx = self._public_ctx()
 
     def _get_context(self) -> ts.Context:
-        ...
+        # TODO: get context from ContextManager
+        pass
 
     def _public_ctx(self) -> bytes:
         ctx_pub = self.ctx.copy()
@@ -33,8 +38,10 @@ class Client:
     def send_message(self, message):
         if self.ndarray_type(message) == "vector":
             return self.pub_ctx + self.encrypt_vector(message)
-        else:
+        elif self.ndarray_type(message) == "tensor":
             return self.pub_ctx + self.encrypt_tensor(message)
+        else:
+            raise ValueError(f"Invalid input array {message.dtype}")
         
     def recieve_message(self, message):
         if self.ndarray_type(message) == "vector":

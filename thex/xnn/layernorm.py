@@ -2,7 +2,7 @@ import tenseal as ts
 import torch
 import numpy as np
 
-from xnn.Module import FHELayer
+from .Module import FHELayer
 
 class OriginLayerNorm(torch.nn.Module):
     def __init__(self, hidden_size, eps=1e-12):
