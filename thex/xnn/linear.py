@@ -6,9 +6,9 @@ from thex.xnn.Module import FHELayer
 from thex import logger
 
 
-class enc_Linear(FHELayer):
+class EncLinear(FHELayer):
     def __init__(self, torch_nn):
-        super(enc_Linear, self).__init__()
+        super(EncLinear, self).__init__()
         self.fc_weight = torch_nn.fc.weight.T.data.tolist()
         self.fc_bias = torch_nn.fc.bias.data.tolist()
     

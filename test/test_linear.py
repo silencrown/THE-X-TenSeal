@@ -7,7 +7,7 @@ import test_helper
 from thex import logger
 from thex.ContextManager import ContextManager
 from thex.xnn.linear import (
-    enc_Linear, 
+    EncLinear, 
     Linear
 )
 
@@ -28,7 +28,7 @@ class TestLinear(unittest.TestCase):
         logger(f"result: {result}")
 
         # enc model inference
-        enc_model = enc_Linear(torch_model)
+        enc_model = EncLinear(torch_model)
         enc_result = np.array(enc_model(enc_tensor).decrypt().tolist())
         logger(f"enc_result: {enc_result}")
         # logger.log_system_info()

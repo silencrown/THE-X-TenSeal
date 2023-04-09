@@ -4,7 +4,7 @@ import torch
 import tenseal as ts
 
 import test_helper
-from thex.xnn.layernorm import enc_layernorm
+from thex.xnn.layernorm import EncLayerNorm
 
 
 class TestLayerNorm(torch.nn.Module):
@@ -19,7 +19,7 @@ def test_layernorm():
 
     # generate a torch model
     torch_model = TestLayerNorm(10)
-    enc_model = enc_layernorm(torch_model)
+    enc_model = EncLayerNorm(torch_model)
     print(enc_model.fc_weight)
 
     """ Initial Encryption Parameters """

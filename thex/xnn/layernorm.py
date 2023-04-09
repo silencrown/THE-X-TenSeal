@@ -4,9 +4,9 @@ import numpy as np
 
 from .Module import FHELayer
 
-class OriginLayerNorm(torch.nn.Module):
+class LayerNorm(torch.nn.Module):
     def __init__(self, hidden_size, eps=1e-12):
-        super(OriginLayerNorm, self).__init__()
+        super(LayerNorm, self).__init__()
         self.weight = torch.nn.Parameter(torch.ones(hidden_size))
         self.bias = torch.nn.Parameter(torch.zeros(hidden_size))
         self.variance_epsilon = eps
@@ -25,9 +25,9 @@ class ApproxLayerNorm(torch.nn.Module):
     def forward(self, x):
         return self.fc(x)
     
-class enc_layernorm(FHELayer):
+class EncLayerNorm(FHELayer):
     def __init__(self, torch_nn):
-        super(enc_layernorm, self).__init__()
+        super(EncLayerNorm, self).__init__()
         self.fc_weight = torch_nn.fc.weight.T.data.tolist()
         self.fc_bias = torch_nn.fc.bias.data.tolist()
 
