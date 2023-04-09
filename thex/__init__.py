@@ -1,8 +1,9 @@
 from . import xnn
 from ._logger import logger
 from . import ContextManager
+from .ContextManager import cxt_man
 
-__all__ = ['xnn', 'logger', 'ContextManager']
+__all__ = ['xnn', 'logger', 'ContextManager', 'cxt_man']
 
 # TODO: add all files in the_x/ to the __all__ lists
 

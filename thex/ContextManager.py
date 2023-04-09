@@ -1,8 +1,11 @@
 import sys
 from typing import Tuple
 import math
+
 import tenseal as ts
-from thex._logger import logger
+
+from thex import logger
+from thex import utils
 
 
 class ContextManager:
@@ -30,30 +33,46 @@ class ContextManager:
             16384: 438,
             32768: 881,
         }
-        self.poly_mod = poly_mod
+        self._poly_mod = poly_mod
         # larger size, more accurate, less size of multiplication depth
-        self.inner_primes = inner_primes
+        self._inner_primes = inner_primes
         # bit precision before decimal point
-        self.precision_integer = precision_integer
+        self._precision_integer = precision_integer
         # bit precision after decimal point
-        self.precision_fractional = self.inner_primes - self.precision_integer
-        self.scale = 2 ** self.inner_primes
+        self._precision_fractional = self._inner_primes - self._precision_integer
+        self._scale = 2 ** self._inner_primes
         # depth
-        self.max_depth = math.floor(
-            (self._table[self.poly_mod] - (self.precision_integer + self.inner_primes) * 2)
-            / self.inner_primes
+        self._max_depth = math.floor(
+            (self._table[self._poly_mod] - (self._precision_integer + self._inner_primes) * 2)
+            / self._inner_primes
         )
-        self.depth = 0
+        self._depth = 0
         # SEAL context
 
-        self.coeff_mod_bit_sizes = (
-            [self.precision_integer + self.inner_primes]
-            + [self.inner_primes for _ in range(self.max_depth)]
-            + [self.precision_integer + self.inner_primes]
+        self._coeff_mod_bit_sizes = (
+            [self._precision_integer + self._inner_primes]
+            + [self._inner_primes for _ in range(self._max_depth)]
+            + [self._precision_integer + self._inner_primes]
         )
-        self.context = self.get_context()[0]
+        self._context = self._get_context()[0]
 
-    def get_context(self) -> Tuple[ts.Context, int]:
+    @property
+    def max_size(self):
+        return self._max_size
+
+    @property
+    def max_depth(self):
+        return self._max_depth
+
+    @property
+    def depth(self):
+        return self._depth
+    
+    @property
+    def context(self):
+        return self._context
+
+    def _get_context(self) -> Tuple[ts.Context, int]:
         """Get a tenseal context for the given parameters.
         Raises:
             ValueError: If the parameters are not valid.
@@ -63,15 +82,15 @@ class ContextManager:
         # SEAL context
         ctx = ts.context(
             scheme=ts.SCHEME_TYPE.CKKS,
-            poly_modulus_degree=self.poly_mod,
-            coeff_mod_bit_sizes=self.coeff_mod_bit_sizes,
+            poly_modulus_degree=self._poly_mod,
+            coeff_mod_bit_sizes=self._coeff_mod_bit_sizes,
         )
-        ctx.global_scale = self.scale
+        ctx.global_scale = self._scale
         ctx.generate_galois_keys()
-        self.max_size = int(self.poly_mod / 4)
-        return ctx, self.max_size
+        self._max_size = int(self._poly_mod / 4)
+        return ctx, self._max_size
 
-    def depth_check(self, depth_increment):
+    def _depth_check(self, depth_increment):
         """
         Decorator that limits the depth of a function.
 
@@ -86,13 +105,13 @@ class ContextManager:
         """
         def decorator(func):
             def wrapper(*args, **kwargs):
-                if self.depth + depth_increment >= self.max_depth:
-                    raise ValueError("Max depth exceeded. max_depth: {self.max_depth}, depth: {self.depth}, depth increment: {depth_increment}")
+                if self._depth + depth_increment >= self._max_depth:
+                    raise ValueError("Max depth exceeded. max_depth: {self._max_depth}, depth: {self._depth}, depth increment: {depth_increment}")
                 try:
                     return func(*args, **kwargs)
                 finally:
-                    self.depth += depth_increment if not sys.exc_info()[0] else 0
-                    logger.debug(f"depth: {self.depth}")
+                    self._depth += depth_increment if not sys.exc_info()[0] else 0
+                    logger.debug(f"depth: {self._depth}")
             return wrapper
         return decorator
     
@@ -116,10 +135,10 @@ class ContextManager:
             result = my_function(2)
         """
         def decorator(func):
-            return self.depth_check(depth_increment)(func)
+            return self.__depth_check(depth_increment)(func)
         return decorator
 
-    def depth_updater(self):
+    def depth_renew(self):
         """
         Creates a decorator that updates the depth of a function.
 
@@ -129,7 +148,7 @@ class ContextManager:
         Example:
             context_manager = ContextManager()
 
-            @context_manager.depth_updater()
+            @context_manager.depth_renew()
             def my_function(x):
                 return relu(x)
 
@@ -137,7 +156,27 @@ class ContextManager:
         """
         def decorator(func):
             def warpper(*args, **kwargs):
-                self.depth = 0
+                self._depth = 0
                 func(*args, **kwargs)
             return warpper
         return decorator
+
+    def encrypt(self, data):
+        """
+        Encrypt data.
+
+        Args:
+        - data (np.ndarray): The data to encrypt.
+
+        Returns:
+        - ts.CKKSVector: The encrypted data.
+        """
+        str = utils.ndarray_type(data)
+        if str == "tensor":
+            return ts.ckks_tensor(self._context, data)
+        elif str == "vector":
+            return ts.ckks_vector(self._context, data)
+        else:
+            raise ValueError(f"The data type {type(data)} is not supported.")
+
+cxt_man = ContextManager()

@@ -102,8 +102,8 @@ class LoggingUtils:
         # log system info for debug
         self.logger.debug('CPU Usage: {}%'.format(cpu_percent))
         self.logger.debug('Memory Usage: {}%'.format(memory_info.percent))
-        self.logger.debug('Disk Usage: {}%'.format(disk_info.percent))
-        self.logger.debug('Network I/O: {} bytes sent, {} bytes received'.format(net_io_counters.bytes_sent, net_io_counters.bytes_recv))
+        # self.logger.debug('Disk Usage: {}%'.format(disk_info.percent))
+        # self.logger.debug('Network I/O: {} bytes sent, {} bytes received'.format(net_io_counters.bytes_sent, net_io_counters.bytes_recv))
     
         # moniter memory usage
         used_percent = memory_info.percent

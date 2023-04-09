@@ -64,8 +64,3 @@ class EncTransformer():
 
         def __call__(self, *args, **kwargs):
             return self.forward(*args, **kwargs)
-
-
-    @classmethod
-    def relu_enc(enc_X, tag_client):
-        pass

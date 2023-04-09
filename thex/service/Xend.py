@@ -1,9 +1,68 @@
 import enum
+import abc
 
 class Protocol(enum.Enum):
     GRPC = "grpc"
     TCP = "tcp"
     HTTP2 = "http2"
+
+# TODO: Implement the Interface of Xu's Protocols code.
+class Connector(abc.ABC):
+    @abc.abstractmethod
+    def connect(self) -> bool:
+        pass
+        
+    @abc.abstractmethod
+    def send_data(self, data) -> bool:
+        pass
+        
+    @abc.abstractmethod
+    def receive_data(self) -> bytes:
+        pass
+        
+    @abc.abstractmethod
+    def disconnect(self) -> bool:
+        pass
+
+class GrpcConnector(Connector):
+    def connect(self) -> bool:
+        pass
+        
+    def send_data(self, data) -> bool:
+        pass
+        
+    def receive_data(self) -> bytes:
+        pass
+        
+    def disconnect(self) -> bool:
+        pass
+    
+class TcpConnector(Connector):
+    def connect(self) -> bool:
+        pass
+        
+    def send_data(self, data) -> bool:
+        pass
+        
+    def receive_data(self) -> bytes:
+        pass
+        
+    def disconnect(self) -> bool:
+        pass
+
+class Http2Connector(Connector):
+    def connect(self) -> bool:
+        pass
+        
+    def send_data(self, data) -> bool:
+        pass
+        
+    def receive_data(self) -> bytes:
+        pass
+        
+    def disconnect(self) -> bool:
+        pass
+
 
 class Xend:
     """
@@ -43,7 +102,6 @@ class Xend:
         return f"Xend instance with IP: {self.ip}, Port: {self.port}, Protocol: {self.protocol.value}, Cache Location: {self.cache_location}, MinIO Configuration: {self.minio}"
 
     def connect(self):
-        # TODO: Implement the Interface of Xu's Protocols
         # Implement the connection logic based on the selected protocol
         if self.protocol == Protocol.GRPC:
             # Connect using gRPC
