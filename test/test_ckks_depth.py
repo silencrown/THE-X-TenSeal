@@ -60,29 +60,29 @@ def test_tenseal_ckks() -> None:
     print(f"input size: {_size_vec}")
 
     # generate input vector
-    _vec = [random.random() for _ in range(_size_vec)]
-    _vec_ct = ts.ckks_vector(ctx, _vec)
-    _vec_np = np.array(_vec)
-    print("original vec: {} \n\n".format(_vec))
-    print("ciphertext size: {} mb".format(
-            len(jsonpickle.encode(_vec_ct.serialize())) / 1e6
-        )
-    )
+    # _vec = [random.random() for _ in range(_size_vec)]
+    # _vec_ct = ts.ckks_vector(ctx, _vec)
+    # _vec_np = np.array(_vec)
+    # print("original vec: {} \n\n".format(_vec))
+    # print("ciphertext size: {} mb".format(
+    #         len(jsonpickle.encode(_vec_ct.serialize())) / 1e6
+    #     )
+    # )
 
     # multiplication test
-    for i in range(_depth):
-        print("="*20 + f" {i}-th multiplication " + "="*20)
-        # test time
-        start_time = time.time()
-        _vec_ct = _vec_ct * _vec_ct
-        print(f"time cost: {time.time()-start_time:.3f}s")
-        # test precision
-        _vec_np = _vec_np * _vec_np
-        _vec_ct_dec = _vec_ct.decrypt()
-        _diff = sum(
-            [abs(_vec_ct_dec[i] - _vec_np[i]) for i in range(len(_vec_ct_dec))]
-        ) / len(_vec_ct_dec)
-        print("avg difference (precision) ={}\n\n".format(_diff))
+    # for i in range(_depth):
+    #     print("="*20 + f" {i}-th multiplication " + "="*20)
+    #     # test time
+    #     start_time = time.time()
+    #     _vec_ct = _vec_ct * _vec_ct
+    #     print(f"time cost: {time.time()-start_time:.3f}s")
+    #     # test precision
+    #     _vec_np = _vec_np * _vec_np
+    #     _vec_ct_dec = _vec_ct.decrypt()
+    #     _diff = sum(
+    #         [abs(_vec_ct_dec[i] - _vec_np[i]) for i in range(len(_vec_ct_dec))]
+    #     ) / len(_vec_ct_dec)
+    #     print("avg difference (precision) ={}\n\n".format(_diff))
 
     # test tensor (seams slower than vector setting?)
     _size_shape = 8

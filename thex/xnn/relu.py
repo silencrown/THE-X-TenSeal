@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import tenseal as ts
+import torch.nn as nn
 
 from thex.xnn.Module import FHELayer
 from thex import logger
@@ -11,14 +12,14 @@ class enc_ReLU(FHELayer):
         self.context_manager = context_manager
 
     def relu(X):
-        o = np.zeros_like(X)
-        return np.maximum(X, o)
-    
-    # decrypt X
-    X = X.decrypt()
-    # ReLU
-    X = relu(X)
-    # encrypt X
-    return ts.ckks_vector(context_manager.context, X)
+        # TODO: implement relu
+        pass
 
-class enc_ReLU()
+class ReLU(nn.Module):
+    def __init__(self):
+        super(ReLU, self).__init__()
+        pass
+
+    def forward(self, input_tensor):
+        x = torch.relu(input_tensor)
+        return x

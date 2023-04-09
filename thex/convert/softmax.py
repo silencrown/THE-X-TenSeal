@@ -56,7 +56,7 @@ class SoftmaxApprox(nn.Module):
         x = self.relu(self.fc2(x))
         x = self.fc3(x).squeeze(dim=-1)
         return exp_of_score * x
-    
+ 
 
 class SoftmaxApproxTrainer():
     def __init__(self, softmodel: SoftmaxApprox, num_samples=1e6, input_size=128, batch_size=1, lr=0.0001, num_epochs=100):

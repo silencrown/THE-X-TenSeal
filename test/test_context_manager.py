@@ -34,6 +34,8 @@ class TestContextManager(unittest.TestCase):
         def update(x):
             pass
         self.assertEqual(self.context_manager.depth, 0)
+    
+    # TODO: test encrypt
 
 
 if __name__ == '__main__':

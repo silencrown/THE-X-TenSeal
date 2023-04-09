@@ -37,6 +37,7 @@ class ContextManager:
         self.precision_integer = precision_integer
         # bit precision after decimal point
         self.precision_fractional = self.inner_primes - self.precision_integer
+        self.scale = 2 ** self.inner_primes
         # depth
         self.max_depth = math.floor(
             (self._table[self.poly_mod] - (self.precision_integer + self.inner_primes) * 2)
@@ -44,10 +45,10 @@ class ContextManager:
         )
         self.depth = 0
         # SEAL context
-        self.scale = 2 ** self.inner_primes
+
         self.coeff_mod_bit_sizes = (
             [self.precision_integer + self.inner_primes]
-            + [self.inner_primes for _ in range(self.depth)]
+            + [self.inner_primes for _ in range(self.max_depth)]
             + [self.precision_integer + self.inner_primes]
         )
         self.context = self.get_context()[0]
@@ -67,7 +68,8 @@ class ContextManager:
         )
         ctx.global_scale = self.scale
         ctx.generate_galois_keys()
-        return ctx, int(self.poly_mod / 4)
+        self.max_size = int(self.poly_mod / 4)
+        return ctx, self.max_size
 
     def depth_check(self, depth_increment):
         """
