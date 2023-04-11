@@ -1,33 +1,44 @@
 import unittest
 import numpy as np
 import tenseal as ts
+import torch
 
 import test_helper
 from thex import cxt_man
 from thex import logger
-from thex.ContextManager import ContextManager
+from thex.xnn.relu import ReLU, EncReLU
 
 class TestReLU(unittest.TestCase):
 
+    @cxt_man.depth_refresher()
+    def fun_refresher(self, x):
+        return x
+    
+    @cxt_man.depth_limiter(depth_increment=1)
+    def fun_limiter(self, x):
+        return x
+    
+    def _test_wrapper(self):
+        """Test the wrapper return value"""
+        x = 10
+        logger(f"x: {x}")
+        limiter_result = self.fun_limiter(x)
+        logger(f"limiter_result: {limiter_result}")
+        refresher_result = self.fun_refresher(x)
+        logger(f"refresher_result: {refresher_result}")
+
     def test_ReLU(self):
-        # create a random tensor
-        tensor = ts.ckks_vector(cxt_man, [1, 2, 3])
-        # encrypt tensor
-        enc_tensor = tensor.encrypt()
+        x = np.array([-1., 0., 1.])
+        enc_x = cxt_man.encrypt(x)
+        logger(f"enc_x: {enc_x}")
 
-        # apply ReLU function
-        result = ReLU(enc_tensor, self.context_manager)
-
-        # check if result is of the correct type
-        self.assertIsInstance(result, ts.ckks_vector)
-
-        # check if the result is the same shape as the input tensor
-        self.assertEqual(result.shape, tensor.shape)
-
-        # decrypt and check the values
-        decrypted_result = result.decrypt()
-        expected_result = np.maximum(tensor.decrypt(), np.zeros_like(tensor.decrypt()))
-        np.testing.assert_array_almost_equal(decrypted_result, expected_result)
+        result = ReLU(x)
+        enc_result = EncReLU(enc_x)
+        logger(f"enc_result: {enc_result}")
+        
+        logger(f"result: {result}")
+        logger(f"enc_result: {cxt_man.decrypt(enc_result)}")
+        np.testing.assert_array_almost_equal(result, cxt_man.decrypt(enc_result), decimal=2)
 
 
 if __name__ == '__main__':

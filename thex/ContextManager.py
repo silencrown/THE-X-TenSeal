@@ -119,7 +119,7 @@ class ContextManager:
                     return func(*args, **kwargs)
                 finally:
                     self._depth += depth_increment if not sys.exc_info()[0] else 0
-                    logger.debug(f"depth: {self._depth}")
+                    logger.debug(f"depth increased to: {self._depth}")
             return wrapper
         return decorator
     
@@ -165,7 +165,7 @@ class ContextManager:
         def decorator(func):
             def warpper(*args, **kwargs):
                 self._depth = 0
-                func(*args, **kwargs)
+                return func(*args, **kwargs)
             return warpper
         return decorator
 
