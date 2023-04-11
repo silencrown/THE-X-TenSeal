@@ -7,10 +7,10 @@ class Client:
         self.pub_ctx = self._public_ctx()
 
     def __init__(self) -> None:
-        self.ctx = self._get_context()
+        self.ctx = self._setup_context()
         self.pub_ctx = self._public_ctx()
 
-    def _get_context(self) -> ts.Context:
+    def _setup_context(self) -> ts.Context:
         # TODO: add ContextManager logic
         ...
 

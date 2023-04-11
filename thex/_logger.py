@@ -30,7 +30,7 @@ class LoggingUtils:
         config.read(config_file)
 
         level_str = config.get('logging', 'level', fallback='info')
-        print("level: {}".format(level_str))
+        print("logging level: {}".format(level_str))
         level = getattr(logging, level_str.upper())
         config_dict = {'level': level}
 
@@ -38,7 +38,7 @@ class LoggingUtils:
         if file_path is not None:
             if not os.path.exists(file_path):
                 os.makedirs(file_path)
-            file_name = config.get('logging', 'file_name', fallback='the-x')
+            file_name = config.get('logging', 'file_name', fallback='THE-X')
             config_dict.update({'file': os.path.join(file_path, file_name + self._get_data_time() + '.log')})
         return config_dict
 

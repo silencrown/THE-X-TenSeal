@@ -3,16 +3,15 @@ import numpy as np
 import tenseal as ts
 
 import test_helper
+from thex import cxt_man
 from thex import logger
 from thex.ContextManager import ContextManager
 
 class TestReLU(unittest.TestCase):
-    def setUp(self):
-        self.context_manager = ContextManager()
 
     def test_ReLU(self):
         # create a random tensor
-        tensor = ts.ckks_vector(self.context, [1, 2, 3])
+        tensor = ts.ckks_vector(cxt_man, [1, 2, 3])
         # encrypt tensor
         enc_tensor = tensor.encrypt()
 
