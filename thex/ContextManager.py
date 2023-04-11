@@ -26,6 +26,10 @@ class ContextManager:
         self._scale = 0
         self._setup_context(poly_mod, inner_primes, precision_integer)
 
+    def __str__(self):
+        return f"\n{'='*30}\nContextManager(\nmax_size={self._max_size},\n max_depth={self._max_depth},\n " \
+               f"depth={self._depth},\n context={self._context},\n scale={self._scale}\n{'='*30})"
+
     @property
     def max_size(self):
         return self._max_size

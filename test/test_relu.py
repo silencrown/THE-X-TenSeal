@@ -28,7 +28,9 @@ class TestReLU(unittest.TestCase):
         logger(f"refresher_result: {refresher_result}")
 
     def test_ReLU(self):
-        x = np.array([-1., 0., 1.])
+        # x = np.array([-1., 0., 1.])
+        logger(cxt_man)
+        x = np.arange(1, 129).reshape(1, 128)
         enc_x = cxt_man.encrypt(x)
         logger(f"enc_x: {enc_x}")
 
