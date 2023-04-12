@@ -1,10 +1,8 @@
 import numpy as np
-import torch
-import tenseal as ts
 
 from thex import cxt_man
 from thex import logger
-from thex import utils
+from .Module import FHELayer
 
 
 def ReLU(x):
@@ -12,7 +10,7 @@ def ReLU(x):
     return x
 
 @cxt_man.depth_refresher()
-def EncReLU(enc_x):
+def enc_ReLU(enc_x):
     """
     Encrypted ReLU
     """
@@ -26,3 +24,15 @@ def EncReLU(enc_x):
     logger(f"EncReLU output shape: {enc_x.shape}")
     logger(f"EncReLU output: {enc_x}")
     return enc_x
+
+class EncReLU(FHELayer):
+    """
+    Encrypted ReLU
+    """
+    def __init__(self):
+        super(EncReLU, self).__init__()
+        self.relu = enc_ReLU
+
+    def forward(self, x):
+
+        return self.relu(x)

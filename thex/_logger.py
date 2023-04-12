@@ -111,6 +111,24 @@ class LoggingUtils:
             self.logger.warning(f"Memory usage is over 80%: {used_percent}%")
             self.logger.warning(f"Memory usage: {self._bytes2human(memory_info.used)}")
         
+    def log_cxt_info(self, cxt):
+        if not isinstance(cxt, str):
+            cxt = str(cxt)
+        record = logging.LogRecord(
+            name=self.logger.name,
+            level=self.level,
+            pathname=None,
+            lineno=None,
+            msg=cxt,
+            args=None,
+            exc_info=None,
+            func=None,
+            sinfo=None,
+        )
+        record.msg = '-' * 50 + '\n' + record.msg
+        self.logger.handle(record)
+        self.logger.debug('-' * 50)
+        
 
     def __call__(self, message):
         """

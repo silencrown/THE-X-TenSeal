@@ -29,13 +29,14 @@ class TestReLU(unittest.TestCase):
 
     def test_ReLU(self):
         # x = np.array([-1., 0., 1.])
-        logger(cxt_man)
+        logger.log_cxt_info(cxt_man)
         x = np.arange(1, 129).reshape(1, 128)
         enc_x = cxt_man.encrypt(x)
         logger(f"enc_x: {enc_x}")
 
         result = ReLU(x)
-        enc_result = EncReLU(enc_x)
+        relu_layer = EncReLU()
+        enc_result = relu_layer(enc_x)
         logger(f"enc_result: {enc_result}")
         
         logger(f"result: {result}")
