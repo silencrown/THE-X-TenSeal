@@ -4,13 +4,16 @@ import math
 
 import numpy as np
 import tenseal as ts
+import torch
 
 from thex import logger
 from thex import utils
 
 
 class ContextManager:
-    def __init__(self, poly_mod=32768, inner_primes=35, precision_integer=5):
+    # TODO: need to generate the peremeters when giving specific depth
+    # def __init__(self, poly_mod=32768, inner_primes=35, precision_integer=5):
+    def __init__(self, poly_mod=8192, inner_primes=21, precision_integer=20):
         self._table = {
             1024: 27,
             2048: 54,
@@ -184,11 +187,13 @@ class ContextManager:
         - ts.CKKSVector: The encrypted data.
         - ts.CKKSTensor: The encrypted data.
         """
-        # check data type
+        # check datatype
         if isinstance(data, list):
             data = np.array(data)
         elif isinstance(data, np.ndarray):
             pass
+        elif torch.is_tensor(data):
+            data = data.detach().cpu().numpy()
         else:
             raise ValueError(f"The data type {type(data)} is not supported to encryption.")
         

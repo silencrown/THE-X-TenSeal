@@ -6,8 +6,17 @@ from thex.xnn.Module import FHELayer
 from thex import logger
 
 
+class Linear(nn.Module):
+    def __init__(self, input_size, output_size):
+        super(Linear, self).__init__()
+        self.fc = nn.Linear(input_size, output_size)
+
+    def forward(self, input_tensor):
+        x = self.fc(input_tensor)
+        return x
+    
 class EncLinear(FHELayer):
-    def __init__(self, torch_nn):
+    def __init__(self, torch_nn: nn.Module) -> None:
         super(EncLinear, self).__init__()
         if isinstance(torch_nn, nn.Linear):
             self.init_from_torch_linear(torch_nn)
@@ -16,7 +25,7 @@ class EncLinear(FHELayer):
         else:
             raise ValueError("torch_nn must be nn.Linear or nn.Module contains a nn.Linear layer named `fc`")
     
-    def init_from_torch_module(self, torch_nn):
+    def init_from_torch_module(self, torch_nn: Linear) -> None:
         """
         Args:
         - torch_nn: nn.Module
@@ -27,7 +36,7 @@ class EncLinear(FHELayer):
         self.fc_weight = torch_nn.fc.weight.T.data.tolist()
         self.fc_bias = torch_nn.fc.bias.data.tolist()
 
-    def init_from_torch_linear(self, torch_nn):
+    def init_from_torch_linear(self, torch_nn: nn.Linear) -> None:
         """
         Args:
         - torch_nn: nn.Linear
@@ -37,13 +46,6 @@ class EncLinear(FHELayer):
 
     def forward(self, enc_x):
         enc_x = enc_x.mm(self.fc_weight) + self.fc_bias
+        # enc_x = enc_x.mul_plain(self.fc_weight) + self.fc_bias
         return enc_x
 
-class Linear(nn.Module):
-    def __init__(self, input_size, output_size):
-        super(Linear, self).__init__()
-        self.fc = nn.Linear(input_size, output_size)
-
-    def forward(self, input_tensor):
-        x = self.fc(input_tensor)
-        return x
