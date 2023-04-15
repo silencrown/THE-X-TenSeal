@@ -6,10 +6,10 @@ import torch.nn.functional as F
 from thex.xnn.Module import FHELayer
 
 
-class enc_Softmax(FHELayer):
+class EncSoftmax(FHELayer):
     def __init__(self, torch_nn):
         # TODO: implement this
-        super(enc_Softmax, self).__init__()
+        super(EncSoftmax, self).__init__()
         
     def forward(self, enc_x):
         # enc_x = enc_x.mm(self.fc_weight) + self.fc_bias

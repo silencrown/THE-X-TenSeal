@@ -11,15 +11,31 @@ from thex import (
     cxt_man, 
     utils,
     )
-from thex.xnn.Module import FHELayer
+from .Module import FHELayer
+from .softmax import EncSoftmax
 
+
+def masked_fill(mask, value):
+    """
+    Mask a tensor with a value
+    Args:
+    - mask: a boolean tensor
+    - value: a float number
+    """
+    return mask * value + (1 - mask) * 1e-9
+
+def transpose(matrix):
+    """
+    Transpose a 2D list
+    Args:
+    - matrix: a 2D list
+    """
+    return list(map(list, zip(*matrix)))
 
 class Attention(nn.Module):
-
     """
-    Compute 'Scaled Dot Product Attention
+    Torch Class of Compute 'Scaled Dot Product Attention
     """
-
     def forward(self, query, key, value, mask=None, dropout=None):
         scores = torch.matmul(query, key.transpose(-2, -1)) \
                  / math.sqrt(query.size(-1))
@@ -33,18 +49,41 @@ class Attention(nn.Module):
             p_attn = dropout(p_attn)
 
         return torch.matmul(p_attn, value), p_attn
-
+    
 class EncAttention(FHELayer):
-
-    def __init__():
+    def __init__(self):
         super(EncAttention, self).__init__()
-        pass
+        self.softmax = EncSoftmax()
+    """
+    Enc Torch Class of Compute' Scaled Dot Product Attention
+    """
+    def forward(self, query, key, value, mask=None, dropout=None):
+        scores = query.mm(key.transpose(-2, -1)) \
+                 / math.sqrt(query.size(-1))
+
+        if mask is not None:
+            scores = masked_fill(scores, mask == 0, -1e9)
+
+        p_attn = self.softmax(scores, dim=-1)
+
+        # if dropout is not None:
+        #     p_attn = dropout(p_attn)
+
+        return p_attn.mm(value), p_attn
+
+class EncMultiHeadedAttention(FHELayer):
+    """
+    Enc Torch Class of Multi-Headed Attention
+    """
+    def __init__(self, h, d_model, dropout=0.1):
+        super(EncMultiHeadedAttention, self).__init__()
+        assert d_model % h == 0
+        self.d_k = d_model // h
 
     def forward():
         pass
     
 class MultiHeadedAttention(nn.Module):
-
     """
     Take in model size and number of heads.
     """
