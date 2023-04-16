@@ -12,7 +12,7 @@ def ReLU(x):
 @cxt_man.depth_refresher()
 def enc_ReLU(enc_x):
     """
-    Encrypted ReLU
+    Encrypted ReLU function
     """
     # decrypt
     x = np.array(cxt_man.decrypt(enc_x))
@@ -34,5 +34,4 @@ class EncReLU(FHELayer):
         self.relu = enc_ReLU
 
     def forward(self, x):
-
         return self.relu(x)

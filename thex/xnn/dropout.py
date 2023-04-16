@@ -3,8 +3,8 @@ from typing import List
 
 import torch
 
-from thex.xnn import FHELayer
-from thex import logger
+from thex import logger, cxt_man
+from .Module import FHELayer
 
 
 class Dropout(torch.nn.Module):
