@@ -3,6 +3,34 @@ import tenseal as ts
 from abc import ABC, abstractmethod
 
 
+class EncModuleList:
+    def __init__(self, layers=None):
+        self.layers = []
+
+        if layers is not None:
+            if not all(isinstance(layer, FHELayer) for layer in layers):
+                raise TypeError("All elements in the list must be instances of FHELayer")
+            self.layers.extend(layers)
+
+    def append(self, layer):
+        if not isinstance(layer, FHELayer):
+            raise TypeError("The element to be appended must be an instance of FHELayer")
+        self.layers.append(layer)
+
+    def __getitem__(self, index):
+        return self.layers[index]
+
+    def __setitem__(self, index, value):
+        if not isinstance(value, FHELayer):
+            raise TypeError("The element to be assigned must be an instance of FHELayer")
+        self.layers[index] = value
+
+    def __len__(self):
+        return len(self.layers)
+
+    def __iter__(self):
+        return iter(self.layers)
+
 class FHELayer(ABC):
     @abstractmethod
     def __init__(self):
