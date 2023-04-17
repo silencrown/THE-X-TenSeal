@@ -91,3 +91,11 @@ class Module(torch.nn.Module):
 1. pretrained model -> origin model
 2. origin model -> converted model
 3. converted model -> tenseal supported model
+
+## TODO List
+- [x] Operators
+- [] bert-toy enc test
+- [] bert-tiny convert(distill)
+- [] bert-tiny enc test
+- [] benchmark of each oprators
+- [] extend layers test

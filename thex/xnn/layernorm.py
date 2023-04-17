@@ -40,6 +40,7 @@ class ApproxLayerNorm(torch.nn.Module):
         return self.fc(x)
     
 class EncLayerNorm(FHELayer):
+    # TODO: use Linear layer instead of fc
     def __init__(self, torch_nn):
         super(EncLayerNorm, self).__init__()
         self.fc_weight = torch_nn.fc.weight.T.data.tolist()

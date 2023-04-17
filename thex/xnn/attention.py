@@ -58,8 +58,8 @@ class EncAttention(FHELayer):
     Enc Torch Class of Compute' Scaled Dot Product Attention
     """
     def forward(self, query, key, value, mask=None, dropout=None):
-        scores = query.mm(key.transpose(-2, -1)) \
-                 / math.sqrt(query.size(-1))
+        scores = query.mm(key.transpose(-2, -1)) 
+        scores = scores * (1.0 / math.sqrt(query.size(-1))) # use scalar multiplication
 
         if mask is not None:
             scores = masked_fill(scores, mask == 0, -1e9)
