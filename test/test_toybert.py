@@ -222,7 +222,7 @@ if __name__ == '__main__':
     batch = make_batch()
     input_ids, segment_ids, masked_tokens, masked_pos, isNext = map(torch.LongTensor, zip(*batch))
 
-    for epoch in range(100):
+    for epoch in range(10):
         optimizer.zero_grad()
         logits_lm, logits_clsf = model(input_ids, segment_ids, masked_pos)
         loss_lm = criterion(logits_lm.transpose(1, 2), masked_tokens) # for masked LM

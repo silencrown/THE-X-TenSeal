@@ -3,6 +3,7 @@ import torch.nn as nn
 
 from thex import logger
 from thex import cxt_man
+
 from .Module import FHELayer
 from .attention import MultiHeadedAttention, EncAttention
 from .ffn import PositionwiseFeedForward, EncPositionwiseFeedForward

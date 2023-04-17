@@ -1,3 +1,5 @@
+# Reference : TenSEAL/tests/python/benchmarks
+
 import tenseal as ts
 import torch
 import numpy as np

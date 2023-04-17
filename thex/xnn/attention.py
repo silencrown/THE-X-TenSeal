@@ -1,4 +1,4 @@
-import math
+import math, copy
 
 import numpy as np
 import torch
@@ -11,7 +11,8 @@ from thex import (
     cxt_man, 
     utils,
     )
-from .Module import FHELayer
+from .Module import FHELayer, EncModuleList
+from .linear import EncLinear
 from .softmax import EncSoftmax
 
 
@@ -31,6 +32,10 @@ def transpose(matrix):
     - matrix: a 2D list
     """
     return list(map(list, zip(*matrix)))
+
+def clones(module, N=6):
+    "Produce N identical layers."
+    return nn.ModuleList([copy.deepcopy(module) for _ in range(N)])
 
 class Attention(nn.Module):
     """
@@ -75,44 +80,54 @@ class EncMultiHeadedAttention(FHELayer):
     """
     Enc Torch Class of Multi-Headed Attention
     """
-    def __init__(self, h, d_model, dropout=0.1):
+    def __init__(self, h, d_model):
         super(EncMultiHeadedAttention, self).__init__()
         assert d_model % h == 0
         self.d_k = d_model // h
+        self.h = h
+        self.linear_layers = EncModuleList([EncLinear(d_model, d_model) for _ in range(3)])
+        self.attn = None
 
-    def forward():
-        pass
+    def forward(self, query, key, value, mask=None):
+        if mask is not None:
+            # Same mask applied to all h heads.
+            mask = mask.unsqueeze(1)
+        
+        batch_size = query.size(0)
+        query, key, value = [l(x).view(batch_size, -1, self.h, self.d_k).transpose(1, 2)
+                             for l, x in zip(self.linear_layers, (query, key, value))]
+        x, self.attn = EncAttention(query, key, value, mask=mask)
+        x = x.transpose(1, 2).contiguous().view(batch_size, -1, self.h * self.d_k)
+        return self.linear_layers[-1](x)
     
 class MultiHeadedAttention(nn.Module):
-    """
-    Take in model size and number of heads.
-    """
-
     def __init__(self, h, d_model, dropout=0.1):
-        super().__init__()
+        "Take in model size and number of heads."
+        super(MultiHeadedAttention, self).__init__()
         assert d_model % h == 0
-
         # We assume d_v always equals d_k
         self.d_k = d_model // h
         self.h = h
-
-        self.linear_layers = nn.ModuleList([nn.Linear(d_model, d_model) for _ in range(3)])
-        self.output_linear = nn.Linear(d_model, d_model)
-        self.attention = Attention()
-
+        self.linears = clones(nn.Linear(d_model, d_model), 3)
+        self.attn = None
         self.dropout = nn.Dropout(p=dropout)
-
+    
     def forward(self, query, key, value, mask=None):
-        batch_size = query.size(0)
-
-        # 1) Do all the linear projections in batch from d_model => h x d_k
-        query, key, value = [l(x).view(batch_size, -1, self.h, self.d_k).transpose(1, 2)
-                             for l, x in zip(self.linear_layers, (query, key, value))]
-
-        # 2) Apply attention on all the projected vectors in batch.
-        x, attn = self.attention(query, key, value, mask=mask, dropout=self.dropout)
-
-        # 3) "Concat" using a view and apply a final linear.
-        x = x.transpose(1, 2).contiguous().view(batch_size, -1, self.h * self.d_k)
-
-        return self.output_linear(x)
+        if mask is not None:
+            # Same mask applied to all h heads.
+            mask = mask.unsqueeze(1)
+        nbatches = query.size(0)
+        
+        # 1) Do all the linear projections in batch from d_model => h x d_k 
+        query, key, value = \
+            [l(x).view(nbatches, -1, self.h, self.d_k).transpose(1, 2)
+             for l, x in zip(self.linears, (query, key, value))]
+        
+        # 2) Apply attention on all the projected vectors in batch. 
+        x, self.attn = Attention(query, key, value, mask=mask, 
+                                 dropout=self.dropout)
+        
+        # 3) "Concat" using a view and apply a final linear. 
+        x = x.transpose(1, 2).contiguous() \
+             .view(nbatches, -1, self.h * self.d_k)
+        return self.linears[-1](x)
