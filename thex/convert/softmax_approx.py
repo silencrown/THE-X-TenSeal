@@ -1,10 +1,12 @@
+import argparse
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-
 from torch.utils.tensorboard import SummaryWriter
-from thex._logger import logger
+
+from thex import logger
 
 
 def softmax(x, axis=1):
@@ -41,12 +43,19 @@ class SoftmaxApprox(nn.Module):
         """
         S(xi) = xi * T (∑_j ReLU(((xj)/2 + 1)^3))
         """
-        e = self.relu((input_tensor / 2 + 1) ** 3)
-        x = e.sum(dim=-1, keepdim=True).unsqueeze(-1)
+        t = input_tensor / 2 + 1
+        exp_of_score = F.relu(t * t * t)
+        x = exp_of_score.sum(-1, keepdim=True).unsqueeze(-1)
         x = self.relu(self.fc1(x))
         x = self.relu(self.fc2(x))
         x = self.fc3(x).squeeze(dim=-1)
-        return e * x
+        return exp_of_score * x
+        # e = self.relu((input_tensor / 2 + 1) ** 3)
+        # x = e.sum(dim=-1, keepdim=True).unsqueeze(-1)
+        # x = self.relu(self.fc1(x))
+        # x = self.relu(self.fc2(x))
+        # x = self.fc3(x).squeeze(dim=-1)
+        # return e * x
     
     def origin_forward(self, input_tensor):
         t = input_tensor / 2 + 1
@@ -84,7 +93,7 @@ class SoftmaxApproxTrainer():
         optimizer = torch.optim.Adam(self.softmodel.parameters(), lr=self.lr)
 
         for epoch in range(self.num_epochs):
-            # TODO batch
+            # TODO: batch
             optimizer.zero_grad()
             l = loss(self.softmodel(x), y)
             l.sum().backward()
@@ -93,10 +102,10 @@ class SoftmaxApproxTrainer():
             writer.add_scalar('loss', float(l.sum()), epoch)
         writer.close()
 
-    def save(self, file_path="output/softmax_trained.model"):
+    def save(self, file_path="output/softmax_approx.model"):
         """
         Save model.
         """
         torch.save(self.softmodel.state_dict(), file_path)
-        logger.info(f"Softmax Model Saved on: {file_path}")
+        logger.info(f"Softmax Model Saved in: {file_path}")
         return file_path

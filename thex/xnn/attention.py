@@ -71,8 +71,8 @@ class EncAttention(FHELayer):
 
         p_attn = self.softmax(scores, dim=-1)
 
-        # if dropout is not None:
-        #     p_attn = dropout(p_attn)
+        if dropout is not None:
+            p_attn = dropout(p_attn)
 
         return p_attn.mm(value), p_attn
 

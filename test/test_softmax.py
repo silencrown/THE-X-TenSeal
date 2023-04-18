@@ -1,8 +1,17 @@
 import unittest
 import torch
 
-from thex import operators as op
+from thex import cxt_man
 from thex import logger
+
+from thex.xnn.softmax import (
+    SoftmaxApprox,
+    EncSoftmax
+)
+from thex.convert.softmax_approx import (
+    SoftmaxApproxTrainer,
+)
+
 class TestSoftmax(unittest.TestCase):
     def test_appr_softmax():
         """
@@ -31,6 +40,12 @@ class TestSoftmax(unittest.TestCase):
     
         logger(f"softmax: {op.softmax(x_np)}")
         logger(f"softmax_torch: {op.softmax_torch(x_torch)}")
+
+    def test_enc_softmax():
+        """
+        Test of EncSoftmax.
+        """
+        pass
 
 if __name__ == '__main__':
     unittest.main()
