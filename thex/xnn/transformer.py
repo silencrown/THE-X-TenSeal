@@ -68,13 +68,17 @@ class EncSubLayerConnection(FHELayer):
     
 class EncTransformerBlock(nn.Module):
 
-    def __init__(self, hidden, attn_heads, feed_forward_hidden):
+    def __init__(self, torch_nn, hidden, attn_heads, feed_forward_hidden):
 
         super().__init__()
         self.attention = EncAttention(h=attn_heads, d_model=hidden)
-        self.feed_forward = EncPositionwiseFeedForward(d_model=hidden, d_ff=feed_forward_hidden)
-        self.input_sublayer = EncSubLayerConnection(size=hidden)
-        self.output_sublayer = EncSubLayerConnection(size=hidden)
+        self.feed_forward = EncPositionwiseFeedForward(d_model=hidden, 
+                                                       d_ff=feed_forward_hidden, 
+                                                       torch_nn=torch_nn.feed_forward)
+        self.input_sublayer = EncSubLayerConnection(size=hidden, 
+                                                    torch_nn=torch_nn.input_sublayer)
+        self.output_sublayer = EncSubLayerConnection(size=hidden, 
+                                                     torch_nn=torch_nn.output_sublayer)
 
     def forward(self, x, mask):
         x = self.input_sublayer(x, lambda _x: self.attention.forward(_x, _x, _x, mask=mask))

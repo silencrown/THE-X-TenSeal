@@ -12,6 +12,7 @@ from .linear import EncLinear
 class ReciprocalApproximation(nn.Module):
     def __init__(self, hidden_size=16):
         super(ReciprocalApproximation, self).__init__()
+        self.hidden_size = hidden_size
         self.layer1 = nn.Linear(1, hidden_size)
         self.layer2 = nn.Linear(hidden_size, hidden_size)
         self.layer3 = nn.Linear(hidden_size, 1)
@@ -34,8 +35,12 @@ class SoftmaxApprox(nn.Module):
     Raises:
     - ValueError: if pretrained model is not an instance of xnn.SoftmaxApprox.ReciprocalApproximation.
     """
-    
-    def __init__(self, hidden_size=16, use_pretrained=True, file_path=None):
+
+    def __init__(self, 
+                 hidden_size=128, 
+                 use_pretrained=True, 
+                 file_path=None):
+        
         super(SoftmaxApprox, self).__init__()
         # init reciprocal approximation model
         self.reciprocal = ReciprocalApproximation(hidden_size=hidden_size)
@@ -43,8 +48,8 @@ class SoftmaxApprox(nn.Module):
         if use_pretrained:
             if file_path is None:
                 file_path = configer()['softmax_approx']
-                self.safe_load(file_path, self.reciprocal)
-                logger.info(f"Load Softmax-Approximation Pretrained Model from: {file_path}")
+            self.safe_load(file_path, self.reciprocal)
+            logger.info(f"Load Softmax-Approximation Pretrained Model from: {file_path}")
     
     @staticmethod
     def safe_load(file_path, model):
