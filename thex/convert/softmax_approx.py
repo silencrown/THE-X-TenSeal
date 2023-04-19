@@ -34,6 +34,7 @@ class SoftmaxApproxTrainer():
             input_tensor = torch.randn(self.batch_size, 2, self.input_size, self.input_size)
             label  = nn.Softmax(dim=-1)(input_tensor)
             pred = self.model(input_tensor)
+            
             loss = nn.MSELoss()(pred.view(-1), label.view(-1))
             optimizer.zero_grad()
             loss.backward()

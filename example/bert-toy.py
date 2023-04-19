@@ -10,9 +10,11 @@ from thex import cxt_man
 from thex import logger
 from thex.xnn.softmax import (
     SoftmaxApprox,
-    EncSoftmax)
+    EncSoftmax
+)
 from thex.convert.softmax_approx import (
-    SoftmaxApproxTrainer)
+    SoftmaxApproxTrainer
+)
 
 def train_softmax(args):
     softmax_model = SoftmaxApprox(hidden_size=args.softmax_hidden_size)

@@ -1,6 +1,7 @@
 import unittest
 import torch
 
+import test_helper
 from thex import cxt_man
 from thex import logger
 
@@ -13,39 +14,23 @@ from thex.convert.softmax_approx import (
 )
 
 class TestSoftmax(unittest.TestCase):
-    def test_appr_softmax():
-        """
-        test softmax approximation.
-        """
-        # forward test
-        x = torch.randn(10)
-        logger(f"x: {x}")
-        softmax_appr = op.SoftmaxApprox()
-        logger(f"softmax_appr: {softmax_appr(x)}")
-
-        # train test
-        softmax_appr_trainer = op.SoftmaxApproxTrainer(softmax_appr, num_samples=1000000, input_size=128)
-        # log(f"generate train data: {softmax_appr_trainer._generate_train_data()[0][0]}")
-        softmax_appr_trainer.train()
-
-    def test_softmax():
-        """
-        Test softmax function.
-        """
-        x_torch = torch.rand(10, 10)
-        x_np = x_torch.numpy()
-
-        logger(f"torch: {x_torch[0][0]}")
-        logger(f"numpy: {x_np[0][0]}")
+    def softmax(self, x):
+        return torch.nn.Softmax(dim=-1)(x)
     
-        logger(f"softmax: {op.softmax(x_np)}")
-        logger(f"softmax_torch: {op.softmax_torch(x_torch)}")
+    def test_softmax_approx(self):
+        # generate input tensor
+        input_tensor = torch.randn(1, 2, 128, 128)
+        # generate label
+        label = self.softmax(input_tensor)
+        # generate model (default: use pretrained model)
+        model = SoftmaxApprox()
+        # get result
+        result = model(input_tensor)
+        # compare result with label
+        self.assertTrue(torch.allclose(result, label, atol=1e-3))
 
-    def test_enc_softmax():
-        """
-        Test of EncSoftmax.
-        """
-        pass
+
+
 
 if __name__ == '__main__':
     unittest.main()

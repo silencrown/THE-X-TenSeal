@@ -23,6 +23,7 @@ class LoggingUtils:
 
 
     def _read_config(self, config_file):
+        # TODO: use `_config.py` to read config
         if config_file is None:
             config_file = CONFIG_FILE
 
