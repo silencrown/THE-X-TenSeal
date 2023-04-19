@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from thex import (
     logger,
     configer,
+    cxt_man
 )
 from .Module import FHELayer
 from .linear import EncLinear
@@ -83,11 +84,13 @@ class EncReciprocalApproximation(FHELayer):
     def __init__(self, torch_nn=None):
         super(EncReciprocalApproximation, self).__init__()
 
+        # load default torch model
         if torch_nn is None:
             torch_nn = ReciprocalApproximation()
             torch_nn.load_state_dict(torch.load(configer()['softmax_approx']))
             logger.info(f"Load Softmax Model from: {configer()['softmax_approx']}")
 
+        # load weights to EncLinear
         self.layer1 = EncLinear(torch_nn.layer1)
         self.layer2 = EncLinear(torch_nn.layer2)
         self.layer3 = EncLinear(torch_nn.layer3)
@@ -98,13 +101,30 @@ class EncReciprocalApproximation(FHELayer):
         enc_x = self.layer3(enc_x)
         return enc_x
 
-class EncSoftmax(FHELayer):
+class EncSoftmaxApprox(FHELayer):
     def __init__(self, torch_nn):
-        super(EncSoftmax, self).__init__()
+        super(EncSoftmaxApprox, self).__init__()
         self.enc_reciprocal = EncReciprocalApproximation(torch_nn.reciprocal)
-        pass
         
     def forward(self, enc_x):
-        # enc_x = enc_x.mm(self.fc_weight) + self.fc_bias
         pass
 
+@cxt_man.depth_refresher()
+def enc_softmax(enc_x):
+    logger.debug(f"Decrypting input of softmax.")
+    x = torch.tensor(cxt_man.decrypt(enc_x))
+    logger.debug(f"Decrypting input of softmax done.")
+
+    result = F.softmax(x, dim=-1)
+    
+    enc_result = cxt_man.encrypt(result)
+    logger.debug(f"Encrypting output of softmax done.")
+    return enc_result
+
+class EncSoftmax(FHELayer):
+    def __init__(self):
+        super(EncSoftmax, self).__init__()
+        self.softmax = enc_softmax
+
+    def forward(self, x):
+        return self.softmax(x)
