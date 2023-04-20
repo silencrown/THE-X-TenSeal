@@ -70,7 +70,7 @@ class TestSoftmax(unittest.TestCase):
         result = np.array(cxt_man.decrypt(model(enc_tensor)))
         
         logger(f"mse: {np.mean(np.square(result - label))}")
-
+        np.testing.assert_allclose(result, label, atol=1e-1)
+        
 if __name__ == '__main__':
-
     unittest.main()
