@@ -94,8 +94,14 @@ class Module(torch.nn.Module):
 
 ## TODO List
 - [x] Operators
-- [] bert-toy enc test
-- [] bert-tiny convert(distill)
-- [] bert-tiny enc test
-- [] benchmark of each oprators
-- [] extend layers test
+- [ ] bert-toy enc test
+- [ ] bert-tiny convert(distill)
+- [ ] bert-tiny enc test
+- [ ] benchmark of each oprators
+- [ ] extend layers test
+
+- [ ] TenSeal cannot implement `.transpose(-2, -1)`
+    + use xtensor api: https://github.com/xtensor-stack/xtensor/blob/30f5a1df0a4ac6de21e649914f44c4137881914a/include/xtensor/xmanipulation.hpp#L148
+    + use ts.CKKSVector to inplace all tensor 
+    + decrypt the CKKSTensor and use torch
+    + translate multi-head-attention

@@ -54,7 +54,28 @@ class Attention(nn.Module):
             p_attn = dropout(p_attn)
 
         return torch.matmul(p_attn, value), p_attn
-        
+
+class EncAttention(FHELayer):
+    def __init__(self):
+        super(EncAttention, self).__init__()
+        self.softmax = EncSoftmax()
+    """
+    Enc Torch Class of Compute' Scaled Dot Product Attention
+    """
+    def forward(self, query, key, value, mask=None, dropout=None):
+        scores = query.mm(key.transpose(-2, -1)) 
+        scores = scores * (1.0 / math.sqrt(query.size(-1))) # use scalar multiplication
+
+        if mask is not None:
+            scores = masked_fill(scores, mask == 0, -1e9)
+
+        p_attn = self.softmax(scores, dim=-1)
+
+        if dropout is not None:
+            p_attn = dropout(p_attn)
+
+        return p_attn.mm(value), p_attn
+
 class MultiHeadedAttention(nn.Module):
     def __init__(self, h, d_model, dropout=0.1):
         super(MultiHeadedAttention, self).__init__()
@@ -83,26 +104,7 @@ class MultiHeadedAttention(nn.Module):
         x = x.transpose(1, 2).contiguous() \
              .view(nbatches, -1, self.h * self.d_k)
         return self.linears[-1](x)
-class EncAttention(FHELayer):
-    def __init__(self):
-        super(EncAttention, self).__init__()
-        self.softmax = EncSoftmax()
-    """
-    Enc Torch Class of Compute' Scaled Dot Product Attention
-    """
-    def forward(self, query, key, value, mask=None, dropout=None):
-        scores = query.mm(key.transpose(-2, -1)) 
-        scores = scores * (1.0 / math.sqrt(query.size(-1))) # use scalar multiplication
 
-        if mask is not None:
-            scores = masked_fill(scores, mask == 0, -1e9)
-
-        p_attn = self.softmax(scores, dim=-1)
-
-        if dropout is not None:
-            p_attn = dropout(p_attn)
-
-        return p_attn.mm(value), p_attn
 
 class EncMultiHeadedAttention(FHELayer):
     """
