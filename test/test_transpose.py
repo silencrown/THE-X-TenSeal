@@ -34,16 +34,16 @@ class TestTranspose(unittest.TestCase):
         # expected data
         expected = np.transpose(np.array(data).reshape(shape))
         # FIXME: torch.transpose(-2, -1) is not like ts.CKKSTensor.transpose() 
-        # pt_tensor = torch.tensor(data)
-        # pt_tensor = pt_tensor.transpose(-2, -1)
-        # pt_expected = np.array(pt_tensor.tolist())
-        # assert np.allclose(pt_expected, expected, rtol=0, atol=0.01)
+        pt_tensor = torch.tensor(data)
+        pt_tensor = pt_tensor.transpose(-2, -1)
+        pt_expected = np.array(pt_tensor.tolist())
+        assert np.allclose(pt_expected, expected, rtol=0, atol=0.01)
         
         # test enc result
         enc_tensor = cxt_man.encrypt(data)
         assert enc_tensor.shape == shape
         # test enc transpose 
-        enc_result = enc_tensor.transpose(-2, -1)
+        enc_result = enc_tensor.transpose()
         assert enc_result.shape == list(expected.shape)
         # test dec result
         dec_result = np.array(enc_result.decrypt().tolist())

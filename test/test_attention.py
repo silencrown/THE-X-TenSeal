@@ -31,7 +31,7 @@ class TestAttention(unittest.TestCase):
         logger(f"key: {self.key}")
         logger(f"value: {self.value}")
         logger(f"mask: {self.mask}")
-        
+
         self.attn = Attention()
         self.encattn = EncAttention()
     def test_attention(self):
@@ -72,7 +72,6 @@ class TestAttention(unittest.TestCase):
         dec_output = cxt_man.decrypt(enc_output)
         logger(f"enc_output: {dec_output}")
 
-        
 
 if __name__ == '__main__':
     unittest.main()
