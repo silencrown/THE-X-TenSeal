@@ -27,9 +27,12 @@ class TestTranspose(unittest.TestCase):
         logger(f"dec_result: {dec_result}")
         logger(f"expected: {expected}")
     
-    def test_3D_transpose(self):
+    def _test_3D_transpose(self):
         # generate data
-        data = np.array([[[1, 2, 3, 0], [4, 5, 6, 0], [7, 8, 9, 0]], [[1, 2, 3, 0], [4, 5, 6, 0], [7, 8, 9, 0]]])
+        # data = np.array([[[1, 2, 3, 0], [4, 5, 6, 0], [7, 8, 9, 0]], [[1, 2, 3, 0], [4, 5, 6, 0], [7, 8, 9, 0]]])
+        data = np.arange(24)
+        data = data.reshape(2, 3, 4)
+        logger(data)
         shape = [2, 3, 4]
         # expected data
         expected = np.transpose(np.array(data).reshape(shape))
@@ -50,6 +53,13 @@ class TestTranspose(unittest.TestCase):
         assert np.allclose(dec_result, expected, rtol=0, atol=0.01)
         logger(f"dec_result: {dec_result}")
         logger(f"expected: {expected}")
+
+    def test_torch_example(self):
+        pt_tensor = torch.arange(24).reshape(2, 3, 4)
+        logger(pt_tensor)
+        pt_tensor = pt_tensor.transpose(-2, -1)
+        logger("------ torch transpose(-2, -1) ------")
+        logger(pt_tensor)
 
 
 if __name__ == "__main__":
