@@ -32,7 +32,7 @@ def test_iter(model, data_loader):
         next_sent_output, mask_lm_output = model.forward(data["bert_input"], data["segment_label"])
 
 def main():
-    DATA_PATH = "/home/gaosq/THE-X-TenSEAL/test/data/"
+    DATA_PATH = "/home/THE-X/THE-X-TenSEAL/test/data/"
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--train_dataset", default=DATA_PATH+"SST-2/train.tsv", type=str, help="train dataset for train bert")

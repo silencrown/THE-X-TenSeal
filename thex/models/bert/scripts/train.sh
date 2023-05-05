@@ -1,1 +1,1 @@
-python /home/gaosq/THE-X-TenSEAL/test/bert/run.py -e 3
+python /home/THE-X/THE-X-TenSEAL/test/bert/run.py -e 3

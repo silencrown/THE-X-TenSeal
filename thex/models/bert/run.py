@@ -9,7 +9,7 @@ from dataset import BERTDataset, WordVocab
 
 def train():
     parser = argparse.ArgumentParser()
-    DATA_PATH = "/home/gaosq/THE-X-TenSEAL/test/data/"
+    DATA_PATH = "/home/THE-X/THE-X-TenSEAL/test/data/"
     parser.add_argument("-c", "--train_dataset", default=DATA_PATH+"SST-2/train.tsv", type=str, help="train dataset for train bert")
     parser.add_argument("-t", "--test_dataset", default=DATA_PATH+"SST-2/test.tsv", type=str, help="test set for evaluate train set")
     parser.add_argument("-v", "--vocab_path", default=DATA_PATH+"vocab/vocab.txt", type=str, help="built vocab model path with bert-vocab")

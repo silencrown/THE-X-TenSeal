@@ -6,7 +6,7 @@ import psutil
 import configparser
 
 
-CONFIG_FILE = "/home/gaosq/the-X-TenSeal/config.ini"
+CONFIG_FILE = "/home/THE-X/THE-X-TenSeal/config.ini"
 
 class LoggingUtils:
 
