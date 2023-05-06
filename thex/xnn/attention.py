@@ -56,9 +56,9 @@ class Attention(nn.Module):
         return torch.matmul(p_attn, value), p_attn
 
 class EncAttention(FHELayer):
-    def __init__(self):
+    def __init__(self, softmax=EncSoftmax()):
         super(EncAttention, self).__init__()
-        self.softmax = EncSoftmax()
+        self.softmax = softmax
     """
     Enc Torch Class of Compute' Scaled Dot Product Attention
     """

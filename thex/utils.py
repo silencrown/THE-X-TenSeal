@@ -1,3 +1,4 @@
+from typing import List
 import tenseal as ts
 import numpy as np
 
@@ -16,3 +17,16 @@ def encdata_type(encdata) -> str:
         return "tensor"
     else:
         raise ValueError("Invalid input array")
+
+def get_axes_perm(shape, transpose):
+    indexes = list(range(len(shape)))
+    transpose = [i if i >= 0 else len(shape) + i for i in transpose]
+    indexes[transpose[0]], indexes[transpose[1]] = indexes[transpose[1]], indexes[transpose[0]]
+    return indexes
+
+def transpose_tenseal(encdata: ts.CKKSTensor, perm: List[int]=None) -> ts.CKKSTensor:
+    if isinstance(encdata, ts.CKKSTensor):
+        return encdata.transpose(get_axes_perm(perm, encdata.shape))
+    else:
+        raise ValueError("Invalid input array")
+    
