@@ -11,6 +11,8 @@ def ndarray_type(arr: np.ndarray) -> str:
         raise ValueError("Invalid input array")
 
 def encdata_type(encdata) -> str:
+    """Return the type of the encrypted data."""
+
     if isinstance(encdata, ts.ckks_vector):
         return "vector"
     elif isinstance(encdata, ts.ckks_tensor):
@@ -19,14 +21,10 @@ def encdata_type(encdata) -> str:
         raise ValueError("Invalid input array")
 
 def get_axes_perm(shape, transpose):
+    """Return the permutation of the axes for the transpose operation."""
+
     indexes = list(range(len(shape)))
     transpose = [i if i >= 0 else len(shape) + i for i in transpose]
     indexes[transpose[0]], indexes[transpose[1]] = indexes[transpose[1]], indexes[transpose[0]]
     return indexes
-
-def transpose_tenseal(encdata: ts.CKKSTensor, perm: List[int]=None) -> ts.CKKSTensor:
-    if isinstance(encdata, ts.CKKSTensor):
-        return encdata.transpose(get_axes_perm(perm, encdata.shape))
-    else:
-        raise ValueError("Invalid input array")
     
