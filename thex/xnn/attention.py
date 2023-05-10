@@ -4,7 +4,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import tenseal as ts
 
 from thex import (
     logger,
@@ -13,7 +12,8 @@ from thex import (
     )
 from .Module import FHELayer, EncModuleList
 from .linear import EncLinear
-from .softmax import EncSoftmax
+from .softmax import EncSoftmax, EncSoftmaxApprox
+from .transpose import transpose
 
 
 def masked_fill(mask, value):
@@ -24,14 +24,6 @@ def masked_fill(mask, value):
     - value: a float number
     """
     return mask * value + (1 - mask) * 1e-9
-
-def transpose(matrix):
-    """
-    Transpose a 2D list
-    Args:
-    - matrix: a 2D list
-    """
-    return list(map(list, zip(*matrix)))
 
 def clones(module, N=6):
     "Produce N identical layers."
@@ -62,9 +54,10 @@ class EncAttention(FHELayer):
     """
     Enc Torch Class of Compute' Scaled Dot Product Attention
     """
-    def forward(self, query, key, value, mask=None, dropout=None):
-        scores = query.mm(key.transpose(-2, -1)) 
-        scores = scores * (1.0 / math.sqrt(query.size(-1))) # use scalar multiplication
+    def forward(self, query, key, value, sqrt_d, mask=None, dropout=None):
+        key = transpose(key, [-2, -1])
+        scores = query.mm(key)
+        scores = scores * (1.0 / sqrt_d)
 
         if mask is not None:
             scores = masked_fill(scores, mask == 0, -1e9)
@@ -104,7 +97,6 @@ class MultiHeadedAttention(nn.Module):
         x = x.transpose(1, 2).contiguous() \
              .view(nbatches, -1, self.h * self.d_k)
         return self.linears[-1](x)
-
 
 class EncMultiHeadedAttention(FHELayer):
     """

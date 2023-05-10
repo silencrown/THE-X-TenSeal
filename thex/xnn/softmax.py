@@ -110,12 +110,12 @@ class EncSoftmaxApprox(FHELayer):
         pass
 
 @cxt_man.depth_refresher()
-def enc_softmax(enc_x):
+def enc_softmax(enc_x, dim=-1):
     logger.debug(f"Decrypting input of softmax.")
     x = torch.tensor(cxt_man.decrypt(enc_x))
     logger.debug(f"Decrypting input of softmax done.")
 
-    result = F.softmax(x, dim=-1)
+    result = F.softmax(x, dim=dim)
     
     enc_result = cxt_man.encrypt(result)
     logger.debug(f"Encrypting output of softmax done.")
@@ -126,5 +126,5 @@ class EncSoftmax(FHELayer):
         super(EncSoftmax, self).__init__()
         self.softmax = enc_softmax
 
-    def forward(self, x):
-        return self.softmax(x)
+    def forward(self, x, dim=-1):
+        return self.softmax(x, dim=dim)
