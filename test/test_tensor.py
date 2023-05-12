@@ -2,20 +2,16 @@ import tenseal as ts
 import torch
 
 import test_helper
-from thex import ContextManager
+from thex import cxt_man
 
 def test_manager():
-    # Setup TenSEAL context
-    context_manager = ContextManager()
-    context = context_manager.get_context()[0]
-
-    a = torch.randn(64, 128)
-    b = torch.randn(128, 64)
+    a = torch.randn(64, 8)
+    b = torch.randn(8, 64)
 
     # encrypted vectors
     print("start encrypt")
-    enc_a = ts.ckks_tensor(context, a)
-    enc_b = ts.ckks_tensor(context, b)
+    enc_a = cxt_man.encrypt(a)
+    enc_b = cxt_man.encrypt(b)
 
     print("matmul")
     result = enc_a.mm(enc_b)

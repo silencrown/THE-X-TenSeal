@@ -48,16 +48,18 @@ class Attention(nn.Module):
         return torch.matmul(p_attn, value), p_attn
 
 class EncAttention(FHELayer):
-    def __init__(self, softmax=EncSoftmax()):
+    def __init__(self, d, softmax=EncSoftmax()):
         super(EncAttention, self).__init__()
         self.softmax = softmax
+        self.d = d
     """
     Enc Torch Class of Compute' Scaled Dot Product Attention
     """
-    def forward(self, query, key, value, sqrt_d, mask=None, dropout=None):
+    def forward(self, query, key, value, mask=None, dropout=None):
         key = transpose(key, [-2, -1])
         scores = query.mm(key)
-        scores = scores * (1.0 / sqrt_d)
+        repi_sqrt_d = 1.0 / math.sqrt(self.d)
+        scores = scores * repi_sqrt_d
 
         if mask is not None:
             scores = masked_fill(scores, mask == 0, -1e9)
@@ -102,6 +104,8 @@ class EncMultiHeadedAttention(FHELayer):
     """
     Enc Torch Class of Multi-Headed Attention
     """
+
+    # TODO: remove all batch
     def __init__(self, h, d_model):
         super(EncMultiHeadedAttention, self).__init__()
         assert d_model % h == 0

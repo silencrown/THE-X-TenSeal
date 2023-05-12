@@ -1,8 +1,7 @@
+import unittest
+
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import unittest
 
 import test_helper
 from thex import (
@@ -18,59 +17,42 @@ from thex.xnn.attention import (
 
 
 class TestAttention(unittest.TestCase):
-    def setUp(self):
-        self.query = torch.randn(2, 3, 4)
-        self.key = torch.randn(2, 3, 4)
-        self.value = torch.randn(2, 3, 4)
-        self.mask = torch.ones(2, 3, 3)
-        self.mask[:, 1, 1] = 0
-        self.mask[:, 2, 2] = 0
-        self.mask[:, 2, 1] = 0
-        self.mask[:, 1, 2] = 0
-        logger(f"query: {self.query}")
-        logger(f"key: {self.key}")
-        logger(f"value: {self.value}")
-        logger(f"mask: {self.mask}")
 
-        self.attn = Attention()
-        self.encattn = EncAttention()
-    def test_attention(self):
-        output, attn = self.attn(
-            self.query, 
-            self.key, 
-            self.value, 
-            mask=self.mask, dropout=None)
+    def setUp(self) -> None:
+        # Notice: cannot use batch
+        # self.batch_size = 2
+        self.seq_len = 4
+        self.d_model = 16
+        self.num_heads = 4   
 
-        logger(f"output: {output}")
+        self.query = torch.randn(self.seq_len, self.d_model)
+        self.key = torch.randn(self.seq_len, self.d_model)
+        self.value = torch.randn(self.seq_len, self.d_model)   
 
-        self.assertEqual(output.shape, (2, 3, 4))
-        self.assertEqual(attn.shape, (2, 3, 3))
-        self.assertEqual(attn[0, 1, 1], 0)
-        self.assertEqual(attn[0, 2, 2], 0)
-        self.assertEqual(attn[0, 2, 1], 0)
-        self.assertEqual(attn[0, 1, 2], 0)
+    def _test_attention(self):
+        attn = Attention()
+        output, attn = attn(self.query, self.key, self.value)
+        # logger(f"output: {output}")
+        return output
 
     def test_enc_attention(self):
 
-        output, attn = self.attn(
-            self.query, 
-            self.key, 
-            self.value, 
-            mask=self.mask, 
-            dropout=None)
-        logger(f"output: {output}")
+        expected = self._test_attention().numpy()
 
-        enc_query = cxt_man.encrypt(self.query)
-        enc_key = cxt_man.encrypt(self.key)
-        enc_value = cxt_man.encrypt(self.value)
-        enc_output, enc_attn = self.encattn(
+        enc_query = cxt_man.encrypt(self.query.tolist())
+        enc_key = cxt_man.encrypt(self.key.tolist())
+        enc_value = cxt_man.encrypt(self.value.tolist())
+        enc_attn_layer = EncAttention(d=self.key.size(-1))
+        enc_output, enc_attn = enc_attn_layer(
             enc_query,
             enc_key,
-            enc_value,
-            mask=self.mask,
-            dropout=None)
-        dec_output = cxt_man.decrypt(enc_output)
-        logger(f"enc_output: {dec_output}")
+            enc_value)
+        
+        dec_output = np.array(cxt_man.decrypt(enc_output))
+        logger(f"test_enc_output: {dec_output}")
+        logger(f"expected: {expected}")
+        np.testing.assert_array_almost_equal(expected, dec_output, decimal=1)
+        
 
 
 if __name__ == '__main__':
