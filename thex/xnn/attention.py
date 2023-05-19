@@ -64,7 +64,7 @@ class EncAttention(FHELayer):
         if mask is not None:
             scores = masked_fill(scores, mask == 0, -1e9)
 
-        p_attn = self.softmax(scores, dim=-1)
+        p_attn = self.softmax(scores, dim=-1) # attention prob
 
         if dropout is not None:
             p_attn = dropout(p_attn)
@@ -72,57 +72,136 @@ class EncAttention(FHELayer):
         return p_attn.mm(value), p_attn
 
 class MultiHeadedAttention(nn.Module):
+
     def __init__(self, h, d_model, dropout=0.1):
-        super(MultiHeadedAttention, self).__init__()
+        """
+        Take in model size and number of heads.
+        Args:
+        - h: number of heads
+        - d_model: dimension of model
+        - dropout: dropout rate
+        """
+
+        super().__init__()
         assert d_model % h == 0
+        self.d_model = d_model
         self.d_k = d_model // h
         self.h = h
-        self.linears = clones(nn.Linear(d_model, d_model), 3)
-        self.attn = None
+        self.linear_layers = nn.ModuleList([nn.Linear(d_model, d_model) for _ in range(3)])
+        self.output_linear = nn.Linear(d_model, d_model)
+        self.attention = Attention()
         self.dropout = nn.Dropout(p=dropout)
-    
+
     def forward(self, query, key, value, mask=None):
-        if mask is not None:
-            mask = mask.unsqueeze(1)
-        nbatches = query.size(0)
-        
-        # 1) Do all the linear projections in batch from d_model => h x d_k 
-        query, key, value = \
-            [l(x).view(nbatches, -1, self.h, self.d_k).transpose(1, 2)
-             for l, x in zip(self.linears, (query, key, value))]
-        
-        # 2) Apply attention on all the projected vectors in batch. 
-        x, self.attn = Attention(query, key, value, mask=mask, 
-                                 dropout=self.dropout)
-        
-        # 3) "Concat" using a view and apply a final linear. 
-        x = x.transpose(1, 2).contiguous() \
-             .view(nbatches, -1, self.h * self.d_k)
-        return self.linears[-1](x)
+
+        batch_size = query.size(0)
+
+        # 1) Do all the linear projections in batch from d_model => h x d_k
+        query, key, value = [l(x).view(batch_size, -1, self.h, self.d_k).transpose(1, 2)
+                             for l, x in zip(self.linear_layers, (query, key, value))]
+
+        # 2) Apply attention on all the projected vectors in batch.
+        x, attn = self.attention(query, key, value, mask=mask, dropout=self.dropout)
+
+        # 3) "Concat" using a view and apply a final linear.
+        x = x.transpose(1, 2).contiguous().view(batch_size, -1, self.h * self.d_k)
+
+        return self.output_linear(x)
+    
+    def enc_forward(self, query, key, value, mask=None):
+        """
+        forward function without 3Dtensor.matmul
+
+        Method:
+        - The matrix operations in the original class have all been changed to operations on independent vectors.
+            1. Handle query, key, value separately on each head.
+            2. Then concatenate the obtained results.
+            3. Finally, perform a linear transformation.
+
+        Notice:
+        - Assumes that the input of enc_forward is 2D tensor (seq_len, d_model).
+        - Lost the parallel advantage of multi-head attention.
+        """
+
+        query, key, value = [l(x) for l, x in zip(self.linear_layers, (query, key, value))]
+        logger(f"query: {query.shape}, key: {key.shape}, value: {value.shape}")
+        output = torch.zeros_like(query)
+        logger(f"output: {output.shape}")
+        for i in range(self.h):
+            h_query = query[:, i*self.d_k:(i+1)*self.d_k]
+            h_key = key[:, i*self.d_k:(i+1)*self.d_k]
+            h_value = value[:, i*self.d_k:(i+1)*self.d_k]
+            logger(f"h_query: {h_query.shape}, h_key: {h_key.shape}, h_value: {h_value.shape}")
+
+            h_output, _ = self.attention(h_query, h_key, h_value, mask=mask, dropout=self.dropout)
+            output[:, i*self.d_k:(i+1)*self.d_k] = h_output
+            logger(f"h_output: {h_output.shape}")
+
+        return self.output_linear(output)
+
 
 class EncMultiHeadedAttention(FHELayer):
     """
-    Enc Torch Class of Multi-Headed Attention
+    Enc Class of Multi-Headed Attention
     """
 
-    # TODO: remove all batch
-    def __init__(self, h, d_model):
+    def __init__(self, h, d_model, torch_nn, dropout=None):
         super(EncMultiHeadedAttention, self).__init__()
         assert d_model % h == 0
-        self.d_k = d_model // h
+        self.d_model = d_model
+        self.d_k = self.d_model // h
         self.h = h
-        self.linear_layers = EncModuleList([EncLinear(d_model, d_model) for _ in range(3)])
-        self.attn = None
-
-    def forward(self, query, key, value, mask=None):
-        if mask is not None:
-            # Same mask applied to all h heads.
-            mask = mask.unsqueeze(1)
+        self.Q_linear = EncLinear(torch_nn.linear_layers[0])
+        self.K_linear = EncLinear(torch_nn.linear_layers[1])
+        self.V_linear = EncLinear(torch_nn.linear_layers[2])
+        self.output_linear = EncLinear(torch_nn.output_linear)
+        self.attention = EncAttention(d=self.d_k)
+        self.dropout = dropout
         
-        batch_size = query.size(0)
-        query, key, value = [l(x).view(batch_size, -1, self.h, self.d_k).transpose(1, 2)
-                             for l, x in zip(self.linear_layers, (query, key, value))]
-        x, self.attn = EncAttention(query, key, value, mask=mask)
-        x = x.transpose(1, 2).contiguous().view(batch_size, -1, self.h * self.d_k)
-        return self.linear_layers[-1](x)
+    def forward(self, query, key, value, mask=None):
+        """
+        forward function without 3Dtensor.matmul
+
+        Method:
+        - The matrix operations in the original class have all been changed to operations on independent vectors.
+            1. Handle query, key, value separately on each head.
+            2. Then concatenate the obtained results.
+            3. Finally, perform a linear transformation.
+
+        Notice:
+        - Assumes that the input of enc_forward is 2D tensor (seq_len, d_model).
+        - Lost the parallel advantage of multi-head attention.
+        """
+
+        # query, key, value = [l(x) for l, x in zip(self.linear_layers, (query, key, value))]
+        query = self.Q_linear(query)
+        key = self.K_linear(key)
+        value = self.V_linear(value)
+        logger(f"query: {query.shape}, key: {key.shape}, value: {value.shape}")
+
+        outputs = []
+        for i in range(self.h):
+            h_query = query[:, i*self.d_k:(i+1)*self.d_k]
+            h_key = key[:, i*self.d_k:(i+1)*self.d_k]
+            h_value = value[:, i*self.d_k:(i+1)*self.d_k]
+            logger(f"h_query: {h_query.shape}, h_key: {h_key.shape}, h_value: {h_value.shape}")
+
+
+            h_output, _ = self.attention(h_query, h_key, h_value, mask=mask, dropout=self.dropout)
+            outputs.append(h_output)
+            logger(f"h_output: {h_output.shape}")
+        
+        output = self.combine_outputs(outputs, query.shape)
+
+        return self.output_linear(output) 
     
+    def combine_outputs(self, outputs, shape):
+        # TODO: Is there a better way to combine each head's output?
+        output = torch.zeros(*shape)
+
+        for current_output, i in zip(outputs, range(self.h)):
+            current_output = torch.tensor(cxt_man.decrypt(current_output))
+            output[:, i*self.d_k:(i+1)*self.d_k] = current_output
+        print(output)
+        return cxt_man.encrypt(output)
+

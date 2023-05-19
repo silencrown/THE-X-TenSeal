@@ -12,8 +12,8 @@ from thex import utils
 
 class ContextManager:
     # TODO: need to generate the peremeters when giving specific depth
-    def __init__(self, poly_mod=32768, inner_primes=35, precision_integer=5):
-    # def __init__(self, poly_mod=8192, inner_primes=21, precision_integer=20):
+    # def __init__(self, poly_mod=32768, inner_primes=35, precision_integer=5):
+    def __init__(self, poly_mod=8192, inner_primes=21, precision_integer=20):
         self._table = {
             1024: 27,
             2048: 54,
