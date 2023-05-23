@@ -124,18 +124,18 @@ class MultiHeadedAttention(nn.Module):
         """
 
         query, key, value = [l(x) for l, x in zip(self.linear_layers, (query, key, value))]
-        logger(f"query: {query.shape}, key: {key.shape}, value: {value.shape}")
+        logger.debug(f"query: {query.shape}, key: {key.shape}, value: {value.shape}")
         output = torch.zeros_like(query)
-        logger(f"output: {output.shape}")
+        logger.debug(f"output: {output.shape}")
         for i in range(self.h):
             h_query = query[:, i*self.d_k:(i+1)*self.d_k]
             h_key = key[:, i*self.d_k:(i+1)*self.d_k]
             h_value = value[:, i*self.d_k:(i+1)*self.d_k]
-            logger(f"h_query: {h_query.shape}, h_key: {h_key.shape}, h_value: {h_value.shape}")
+            logger.debug(f"h_query: {h_query.shape}, h_key: {h_key.shape}, h_value: {h_value.shape}")
 
             h_output, _ = self.attention(h_query, h_key, h_value, mask=mask, dropout=self.dropout)
             output[:, i*self.d_k:(i+1)*self.d_k] = h_output
-            logger(f"h_output: {h_output.shape}")
+            logger.debug(f"h_output: {h_output.shape}")
 
         return self.output_linear(output)
 
@@ -177,19 +177,18 @@ class EncMultiHeadedAttention(FHELayer):
         query = self.Q_linear(query)
         key = self.K_linear(key)
         value = self.V_linear(value)
-        logger(f"query: {query.shape}, key: {key.shape}, value: {value.shape}")
+        logger.debug(f"query: {query.shape}, key: {key.shape}, value: {value.shape}")
 
         outputs = []
         for i in range(self.h):
             h_query = query[:, i*self.d_k:(i+1)*self.d_k]
             h_key = key[:, i*self.d_k:(i+1)*self.d_k]
             h_value = value[:, i*self.d_k:(i+1)*self.d_k]
-            logger(f"h_query: {h_query.shape}, h_key: {h_key.shape}, h_value: {h_value.shape}")
-
+            logger.debug(f"h_query: {h_query.shape}, h_key: {h_key.shape}, h_value: {h_value.shape}")
 
             h_output, _ = self.attention(h_query, h_key, h_value, mask=mask, dropout=self.dropout)
             outputs.append(h_output)
-            logger(f"h_output: {h_output.shape}")
+            logger.debug(f"h_output: {h_output.shape}")
         
         output = self.combine_outputs(outputs, query.shape)
 
@@ -202,6 +201,4 @@ class EncMultiHeadedAttention(FHELayer):
         for current_output, i in zip(outputs, range(self.h)):
             current_output = torch.tensor(cxt_man.decrypt(current_output))
             output[:, i*self.d_k:(i+1)*self.d_k] = current_output
-        print(output)
         return cxt_man.encrypt(output)
-

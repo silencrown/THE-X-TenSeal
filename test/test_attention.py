@@ -79,6 +79,7 @@ class TestAttention(unittest.TestCase):
 
     def test_enc_multihead_atten(self):
         """test enc-input multi-head attention forward function"""
+
         x = torch.randn(self.batch_size, self.seq_len, self.d_model)
         enc_x = cxt_man.encrypt(x.squeeze(0).tolist())
         
@@ -86,10 +87,15 @@ class TestAttention(unittest.TestCase):
             h=self.num_heads,
             d_model=self.d_model)
         multi_attn.dropout = None # disable dropout for testing
-        expected_output = multi_attn(x, x, x).detach().numpy()
+        expected_output = multi_attn(x, x, x).squeeze(0).detach().numpy()
 
         enc_multi_attn = EncMultiHeadedAttention(multi_attn.h, multi_attn.d_model, multi_attn)
         enc_output = enc_multi_attn(enc_x, enc_x, enc_x)
+        dec_output = np.array(cxt_man.decrypt(enc_output))
+        logger(f"torch multi_attn output: {expected_output}")
+        logger(f"torch enc_multi_attn output: {dec_output}")
+
+        np.testing.assert_array_almost_equal(expected_output, dec_output, decimal=1)
 
 
 if __name__ == '__main__':
