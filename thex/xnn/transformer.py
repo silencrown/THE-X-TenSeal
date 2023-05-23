@@ -7,7 +7,7 @@ from thex import cxt_man
 from .Module import FHELayer
 from .attention import MultiHeadedAttention, EncAttention
 from .ffn import PositionwiseFeedForward, EncPositionwiseFeedForward
-from .layernorm import LayerNorm, EncLayerNorm
+from .layernorm import LayerNorm, EncLayerNorm, ApproxLayerNorm
 
 
 class SublayerConnection(nn.Module):
@@ -25,6 +25,25 @@ class SublayerConnection(nn.Module):
         "Apply residual connection to any sublayer with the same size."
         return x + self.dropout(sublayer(self.norm(x)))
 
+class ApproxSublayerConnection(nn.Module):
+
+    def __init__(self, size, dropout):
+        super(ApproxSublayerConnection, self).__init__()
+        self.norm = ApproxLayerNorm(size)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x, sublayer):
+        return x + self.dropout(sublayer(self.norm(x)))
+    
+class EncSubLayerConnection(FHELayer):
+
+    def __init__(self, torch_nn):
+        super(EncSubLayerConnection, self).__init__()
+        self.norm = EncLayerNorm(torch_nn)
+
+    def forward(self, x, sublayer):
+        "Apply residual connection to any sublayer with the same size."
+        return x + sublayer(self.norm(x))
 
 class TransformerBlock(nn.Module):
     """
@@ -52,19 +71,12 @@ class TransformerBlock(nn.Module):
         x = self.output_sublayer(x, self.feed_forward)
         return self.dropout(x)
 
-class EncSubLayerConnection(FHELayer):
-    """
-    A residual connection followed by a layer norm.
-    Note for code simplicity the norm is first as opposed to last.
-    """
+class ApproxTransformerBlock(nn.Module):
+    def __init__(self, hidden, attn_heads, feed_forward_hidden, dropout):
 
-    def __init__(self, size):
-        super(EncSubLayerConnection, self).__init__()
-        self.norm = EncLayerNorm(size)
+        super().__init__()
+        self.attention = MultiHeadedAttention(h=attn_heads, d_model=hidden)
 
-    def forward(self, x, sublayer):
-        "Apply residual connection to any sublayer with the same size."
-        return x + sublayer(self.norm(x))
     
 class EncTransformerBlock(nn.Module):
 

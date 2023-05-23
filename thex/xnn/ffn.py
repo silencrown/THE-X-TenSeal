@@ -2,6 +2,7 @@ import math
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from .linear import EncLinear
 from .relu import EncReLU
@@ -27,6 +28,15 @@ class PositionwiseFeedForward(nn.Module):
 
     def forward(self, x):
         return self.layer_2(self.dropout(self.activation(self.layer_1(x))))
+
+class ApproxPositionwiseFeedForward(nn.Module):
+
+    def __init__(self, d_model, d_ff, dropout=0.1):
+        super(ApproxPositionwiseFeedForward, self).__init__()
+
+        self.activation = F.relu()
+
+    def forward()
     
 class EncPositionwiseFeedForward(FHELayer):
     "Implements FFN equation."
