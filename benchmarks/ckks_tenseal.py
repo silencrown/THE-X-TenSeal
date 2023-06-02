@@ -5,11 +5,6 @@ import torch
 import numpy as np
 import pytest
 
-import numpy as np
-import tenseal as ts
-
-from thex import logger
-from thex import cxt_man
 
 SHAPES = [[1], [2], [10], [2, 2], [3, 5], [2, 3, 4], [2, 3, 4, 5], [2, 3, 4, 5, 6]]
 

@@ -1,26 +1,27 @@
 import tenseal as ts
 import torch
+import time
 
 import test_helper
 from thex import cxt_man
 
 def test_manager():
-    a = torch.randn(64, 8)
-    b = torch.randn(8, 64)
+    a = torch.randn(64, 128)
+    b = torch.randn(128, 64)
 
     # encrypted vectors
     print("start encrypt")
     enc_a = cxt_man.encrypt(a)
     enc_b = cxt_man.encrypt(b)
 
-    print("matmul")
+    start_time = time.time()
     result = enc_a.mm(enc_b)
     result.decrypt()
 
     print("test result")
     print(result)
     print(a.mm(b))
-
+    print(f"encrypt time: {time.time() - start_time}")
 
 def main():
     context = ts.context(
@@ -30,23 +31,6 @@ def main():
             )
     context.generate_galois_keys()
     context.global_scale = 2**40
-    
-
-    a = torch.randn(64, 128)
-    b = torch.randn(128, 64)
-
-    # encrypted vectors
-    print("start encrypt")
-    enc_a = ts.ckks_tensor(context, a)
-    enc_b = ts.ckks_tensor(context, b)
-
-    print("matmul")
-    result = enc_a.mm(enc_b)
-    result.decrypt()
-
-    print("test result")
-    print(result)
-    print(a.mm(b))
 
 if __name__ == "__main__":
     test_manager()
